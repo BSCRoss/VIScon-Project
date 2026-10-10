@@ -47,20 +47,36 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
 
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">Members</h2>
-        {members.map((m) => (
-          <div key={m.user.id} className="card space-y-1">
-            <div className="flex items-center justify-between">
-              <p className="font-medium">{m.user.displayName ?? m.user.username} {m.isViewer ? <span className="text-xs text-stone-500">(you)</span> : null}</p>
-              <p className="text-sm">{m.plan?.slotMinutes != null ? formatSlot(m.plan.slotMinutes) : <span className="text-stone-400">no plan yet</span>}{m.plan?.mensa ? ` · ${m.plan.mensa.name}` : ""}</p>
-            </div>
-            {m.likes.length ? (
-              <div className="flex flex-wrap gap-1">
-                {m.likes.map((l) => <span key={l.dishId} className="chip bg-stone-100 px-2 py-1" title={l.mensaName}>{SWIPE_LABEL[l.value]} {l.name}</span>)}
+        {members.map((m) => {
+          const notAvailable = (m as any).availability === "NOT_AVAILABLE" && !m.isViewer;
+          const noPrefs = (m as any).availability === "NO_PREFS";
+          return (
+            <div key={m.user.id} className="card space-y-1">
+              <div className="flex items-center justify-between">
+                <p className="font-medium">{m.user.displayName ?? m.user.username} {m.isViewer ? <span className="text-xs text-stone-500">(you)</span> : null}</p>
+                <p className="text-sm">
+                  {notAvailable ? (
+                    <span className="text-stone-400">not available</span>
+                  ) : m.plan?.slotMinutes != null ? (
+                    <>
+                      {formatSlot(m.plan.slotMinutes)}{m.plan?.mensa ? ` · ${m.plan.mensa.name}` : ""}
+                    </>
+                  ) : (
+                    <span className="text-stone-400">has not set lunch preferences</span>
+                  )}
+                </p>
               </div>
-            ) : <p className="text-xs text-stone-400">no swipes yet</p>}
-            {m.isViewer ? <Link href="/plan" className="text-sm underline">Edit my plan</Link> : null}
-          </div>
-        ))}
+              {!notAvailable && (
+                m.likes.length ? (
+                  <div className="flex flex-wrap gap-1">
+                    {m.likes.map((l) => <span key={l.dishId} className="chip bg-stone-100 px-2 py-1" title={l.mensaName}>{SWIPE_LABEL[l.value]} {l.name}</span>)}
+                  </div>
+                ) : <p className="text-xs text-stone-400">no swipes yet</p>
+              )}
+              {m.isViewer ? <Link href="/plan" className="text-sm underline">Edit my plan</Link> : null}
+            </div>
+          );
+        })}
       </section>
 
       <section className="card space-y-2">

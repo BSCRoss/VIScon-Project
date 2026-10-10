@@ -37,20 +37,44 @@ export async function getGroupToday(groupId: string, viewerId: string) {
     }),
   ]);
 
-  const members = group.members.map((m) => ({
-    user: m.user,
-    role: m.role,
-    isViewer: m.userId === viewerId,
-    plan: plans.find((p) => p.userId === m.userId) ?? null,
-    likes: likes
+  // Privacy: members who picked a different group today are "not available" to this group.
+  const planByUser = new Map(plans.map((p) => [p.userId, p] as const));
+  const unavailable = new Set<string>(plans.filter((p) => p.groupId && p.groupId !== groupId).map((p) => p.userId));
+
+  // For summaries, exclude those unavailable members' likes and plan data
+  const likesForSummary = likes.filter((s) => !unavailable.has(s.userId));
+  const plansForSummary = plans.filter((p) => !unavailable.has(p.userId));
+
+  const members = group.members.map((m) => {
+    const isViewer = m.userId === viewerId;
+    const plan = planByUser.get(m.userId) ?? null;
+    const availability: "AVAILABLE" | "NOT_AVAILABLE" | "NO_PREFS" = plan
+      ? plan.groupId === groupId
+        ? "AVAILABLE"
+        : plan.groupId
+        ? "NOT_AVAILABLE"
+        : "NO_PREFS"
+      : "NO_PREFS";
+    const hide = availability === "NOT_AVAILABLE" && !isViewer;
+
+    const memberLikes = likes
       .filter((s) => s.userId === m.userId)
       .sort((a, b) => b.value - a.value)
-      .map((s) => ({ dishId: s.dish.id, name: s.dish.name, value: s.value, mensaId: s.dish.mensaId, mensaName: s.dish.mensa.name })),
-  }));
+      .map((s) => ({ dishId: s.dish.id, name: s.dish.name, value: s.value, mensaId: s.dish.mensaId, mensaName: s.dish.mensa.name }));
+
+    return {
+      user: m.user,
+      role: m.role,
+      isViewer,
+      availability,
+      plan: hide ? null : plan,
+      likes: hide ? [] : memberLikes,
+    };
+  });
 
   // "Where": mensas ranked by number of members with at least one right swipe there
   const byMensaMap = new Map<string, { mensaId: string; name: string; memberIds: Set<string>; dishes: Map<string, { name: string; votes: number }> }>();
-  for (const s of likes) {
+  for (const s of likesForSummary) {
     const e = byMensaMap.get(s.dish.mensaId) ?? { mensaId: s.dish.mensaId, name: s.dish.mensa.name, memberIds: new Set(), dishes: new Map() };
     e.memberIds.add(s.userId);
     const d = e.dishes.get(s.dish.id) ?? { name: s.dish.name, votes: 0 };
@@ -59,7 +83,7 @@ export async function getGroupToday(groupId: string, viewerId: string) {
     byMensaMap.set(s.dish.mensaId, e);
   }
   // explicit mensa choices in plans count too
-  for (const p of plans) {
+  for (const p of plansForSummary) {
     if (!p.mensa) continue;
     const e = byMensaMap.get(p.mensa.id) ?? { mensaId: p.mensa.id, name: p.mensa.name, memberIds: new Set(), dishes: new Map() };
     e.memberIds.add(p.userId);
@@ -76,7 +100,7 @@ export async function getGroupToday(groupId: string, viewerId: string) {
 
   // "When": slots ranked by member count
   const slotCounts = new Map<number, number>();
-  for (const p of plans) if (p.slotMinutes !== null) slotCounts.set(p.slotMinutes, (slotCounts.get(p.slotMinutes) ?? 0) + 1);
+  for (const p of plansForSummary) if (p.slotMinutes !== null) slotCounts.set(p.slotMinutes, (slotCounts.get(p.slotMinutes) ?? 0) + 1);
   const bySlot = [...slotCounts.entries()].map(([slotMinutes, memberCount]) => ({ slotMinutes, memberCount })).sort((a, b) => b.memberCount - a.memberCount || a.slotMinutes - b.slotMinutes);
 
   return { group: { id: group.id, name: group.name, ownerId: group.ownerId }, today: toIso(today), memberCount: members.length, members, summary: { byMensa, bySlot } };

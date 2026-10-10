@@ -1,8 +1,9 @@
 import type { DishDTO } from "@/lib/queries/today";
 import { SWIPE_LABEL } from "@/lib/labels";
 
-export function DishCard({ dish, flaggedAllergenIds = [], compact = false }: { dish: DishDTO; flaggedAllergenIds?: number[]; compact?: boolean }) {
+export function DishCard({ dish, flaggedAllergenIds = [], compact = false, swipeValue }: { dish: DishDTO; flaggedAllergenIds?: number[]; compact?: boolean; swipeValue?: number | null }) {
   const flagged = dish.allergenIds.filter((a) => flaggedAllergenIds.includes(a));
+  const my = swipeValue ?? dish.mySwipe;
   return (
     <article className="flex gap-3 rounded-xl border border-stone-200 bg-white p-3 shadow-sm">
       <div className={`${compact ? "size-16" : "size-24"} shrink-0 overflow-hidden rounded-lg bg-stone-100`}>
@@ -16,7 +17,7 @@ export function DishCard({ dish, flaggedAllergenIds = [], compact = false }: { d
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <p className="truncate text-xs uppercase tracking-wide text-stone-500">{dish.lineName ?? dish.mensaName}</p>
-          {dish.mySwipe ? <span className="text-sm" title="Your swipe">{SWIPE_LABEL[dish.mySwipe]}</span> : null}
+          {my ? <span className="text-sm" title="Your swipe">{SWIPE_LABEL[my]}</span> : null}
         </div>
         <h3 className="font-semibold leading-tight">{dish.name}</h3>
         {dish.description && !compact ? <p className="mt-0.5 line-clamp-2 text-sm text-stone-600">{dish.description}</p> : null}
