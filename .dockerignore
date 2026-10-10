@@ -10,3 +10,5 @@ plans
 *.md
 !README.md
 .DS_Store
+pnpm-workspace.yaml
+.npmrc

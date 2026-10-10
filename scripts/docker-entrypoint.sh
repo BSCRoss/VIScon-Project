@@ -8,7 +8,7 @@ export PATH="/app/node_modules/.bin:$PATH"
 
 echo "[entrypoint] waiting for database + applying migrations"
 for i in $(seq 1 60); do
-  if pnpm exec prisma migrate deploy >/tmp/migrate.log 2>&1; then echo "[entrypoint] migrations applied"; break; fi
+  if prisma migrate deploy >/tmp/migrate.log 2>&1; then echo "[entrypoint] migrations applied"; break; fi
   if [ "$i" = 60 ]; then echo "[entrypoint] database not reachable:"; cat /tmp/migrate.log; exit 1; fi
   sleep 2
 done
@@ -32,4 +32,4 @@ if [ "${IMPORT_ON_START:-false}" = "true" ] || [ "${SEED_DEMO:-false}" = "true" 
 fi
 
 echo "[entrypoint] starting greyGiraffe on :3000"
-exec pnpm exec next start -p 3000 -H 0.0.0.0
+exec next start -p 3000 -H 0.0.0.0

@@ -1,7 +1,7 @@
 # greyGiraffe – single app image (Next.js server + CLI scripts + baked embedding model).
 # Build:  docker build -t greygiraffe .      Run everything: docker compose -f docker-compose.prod.yml up -d
 FROM node:22-bookworm-slim AS base
-ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH NEXT_TELEMETRY_DISABLED=1 \
+ENV PNPM_HOME=/pnpm PATH=/app/node_modules/.bin:/pnpm:$PATH NEXT_TELEMETRY_DISABLED=1 \
     TRANSFORMERS_CACHE=/app/.cache/transformers HF_HUB_DISABLE_TELEMETRY=1
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl openssl \
  && rm -rf /var/lib/apt/lists/* \
@@ -13,9 +13,9 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
 RUN pnpm install --frozen-lockfile
 
-# app
+# app (binaries are called directly, not via `pnpm exec`, so a stray pnpm-workspace.yaml/.npmrc on a laptop cannot break the build)
 COPY . .
-RUN pnpm exec prisma generate && pnpm exec next build
+RUN rm -f pnpm-workspace.yaml .npmrc && prisma generate && next build
 
 # bake the sentence-embedding model into the image so the VM never needs to download it
 RUN node scripts/warm-model.mjs
