@@ -79,7 +79,15 @@ src/components/*              BottomNav, DishCard, SwipeDeck, FeedbackPrompt, fo
 - Prices are `Decimal` in Prisma; convert to `number` (see `toDishDTO`) before passing to client components.
 - Add a migration for every schema change: `pnpm db:migrate --name <what-changed>` and commit `prisma/migrations`.
 
-## Deploy on a VM with Docker (recommended)
+## Run the whole app in Docker on your laptop (no Node needed)
+
+```bash
+git clone git@github.com:thestud1/greyGiraffe.git && cd greyGiraffe
+./scripts/docker-up.sh
+```
+That is all: the script starts Docker Desktop if needed, writes `.env.docker` with laptop defaults (port 8080, demo mode, random secrets), builds the image, starts Postgres + Qdrant + the app + the scheduler, waits until the app answers and prints the URL. Open http://localhost:8080 and log in as `alice / password123`. `./scripts/docker-up.sh logs|down|reset` for logs, stop, or a fresh start.
+
+## Deploy on a VM with Docker
 
 One app image + Postgres + Qdrant + a scheduler, all in `docker-compose.prod.yml`. Needs Docker with the compose plugin on the VM (Ubuntu: `sudo apt install docker.io docker-compose-v2`, then add your user to the `docker` group).
 
