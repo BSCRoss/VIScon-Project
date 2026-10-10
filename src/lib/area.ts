@@ -13,7 +13,7 @@ export function areaOfCampus(campus: Campus): Area | null {
   return null;
 }
 
-/** The user's area for a given date, or null when they have not set one for that weekday. */
+/** The user's area for a given date, or null when that weekday is "Both" (no restriction). */
 export function areaForDate(weekdays: { weekday: number; area: Area }[], dateIso: string): Area | null {
   const wd = isoWeekday(dateIso);
   return weekdays.find((w) => w.weekday === wd)?.area ?? null;

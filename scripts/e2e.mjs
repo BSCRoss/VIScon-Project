@@ -28,76 +28,129 @@ try {
   check("login", page.url().includes("/today"), page.url());
 
   // --- swipe deck ---
-  step("goto /swipe");
-  await page.goto(`${BASE}/swipe`);
-  const card = page.getByTestId("swipe-card");
-  await card.waitFor({ timeout: 30000 });
-  const title = () => card.locator("h3").first().innerText();
-  const nextTitle = () => page.locator('[aria-hidden="true"] h3').first().innerText();
-  const leftCount = async () => Number((await page.getByText(/\d+ left/).first().innerText()).match(/(\d+) left/)[1]);
+  // --- "how was yesterday" popup ---
+  step("yesterday popup");
+  await page.goto(`${BASE}/today`);
+  const modal = page.getByTestId("yesterday-modal");
+  let modalShown = true; try { await modal.waitFor({ timeout: 8000 }); } catch { modalShown = false; }
+  check("yesterday popup appears", modalShown);
+  if (modalShown) {
+    const dishSelect = page.getByTestId("yesterday-dish");
+    const before = await dishSelect.inputValue();
+    const second = await dishSelect.locator("option").nth(1).getAttribute("value");
+    await dishSelect.selectOption(second);
+    check("popup lets you pick another dish", (await dishSelect.inputValue()) === second && second !== before);
+    await page.getByRole("radio", { name: "4 stars" }).click();
+    await modal.getByRole("button", { name: "Yes" }).click();
+    await page.getByTestId("yesterday-submit").click();
+    let thanked = true; try { await modal.getByText("Thanks, noted!").waitFor({ timeout: 8000 }); } catch { thanked = false; }
+    check("popup saves a rating", thanked);
+    await page.waitForTimeout(1200);
+    await page.reload();
+    await modal.waitFor({ timeout: 8000 });
+    await page.getByTestId("yesterday-close").click();
+    check("popup closes via ×", !(await modal.isVisible()));
+  }
 
-  step("read deck state");
-  const t0 = await title(); const n0 = await nextTitle(); const c0 = await leftCount();
-  const box = await card.boundingBox();
-  const cx = box.x + box.width / 2, cy = box.y + box.height / 2;
+  // --- quick vote + drag on the overview cards ---
+  step("today cards");
+  // the popup mounts a moment after load; wait for it briefly, then dismiss so it cannot intercept clicks
+  const closeYesterday = async () => { const c = page.getByTestId("yesterday-close"); try { await c.waitFor({ timeout: 2500 }); await c.click(); await page.waitForTimeout(200); } catch {} };
+  const cards = page.getByTestId("dish-card");
+  await cards.first().waitFor(); await closeYesterday();
+  const firstLike = cards.first().getByRole("button", { name: "I want this" });
+  const wasPressed = (await firstLike.getAttribute("aria-pressed")) === "true";
+  await firstLike.click(); await page.waitForTimeout(1200);
+  await page.reload(); await cards.first().waitFor(); await closeYesterday();
+  const nowPressed = (await cards.first().getByRole("button", { name: "I want this" }).getAttribute("aria-pressed")) === "true";
+  check("quick vote toggles and persists", nowPressed !== wasPressed, `${wasPressed} → ${nowPressed}`);
+  await cards.first().getByRole("button", { name: "I want this" }).click(); await page.waitForTimeout(1200); // restore
 
-  step("partial drag");
-  // partial drag: 40px → must snap back, same card
-  await page.mouse.move(cx, cy); await page.mouse.down();
-  for (let i = 1; i <= 8; i++) await page.mouse.move(cx + i * 5, cy);
-  await page.mouse.up(); await page.waitForTimeout(400);
-  check("partial swipe keeps the card", (await title()) === t0 && (await leftCount()) === c0, `${t0}`);
+  const dragCard = async (card, px) => {
+    const box = await card.boundingBox();
+    const cx = box.x + box.width / 2, cy = box.y + box.height / 2;
+    await page.mouse.move(cx, cy); await page.mouse.down();
+    const steps = Math.max(4, Math.abs(px) / 10);
+    for (let i = 1; i <= steps; i++) await page.mouse.move(cx + (px * i) / steps, cy);
+    await page.mouse.up(); await page.waitForTimeout(700);
+  };
+  const second = cards.nth(1);
+  const likeBtn = () => second.getByRole("button", { name: "I want this" });
+  const dislikeBtn = () => second.getByRole("button", { name: "Not today" });
+  // make sure the card starts unvoted
+  if ((await likeBtn().getAttribute("aria-pressed")) === "true") { await likeBtn().click(); await page.waitForTimeout(800); }
+  if ((await dislikeBtn().getAttribute("aria-pressed")) === "true") { await dislikeBtn().click(); await page.waitForTimeout(800); }
 
-  step("full drag");
-  // full drag right: 160px → advances by exactly one (next card becomes current)
-  await page.mouse.move(cx, cy); await page.mouse.down();
-  for (let i = 1; i <= 16; i++) await page.mouse.move(cx + i * 10, cy);
-  await page.mouse.up(); await page.waitForTimeout(1200);
-  const t1 = await title(); const c1 = await leftCount();
-  check("full swipe advances by exactly one", t1 === n0 && c1 === c0 - 1, `expected "${n0}", got "${t1}"; left ${c0}→${c1}`);
-
-  // button swipe also advances by one (after server refresh)
-  const n1 = await nextTitle(); const tb = await title();
-  await page.getByRole("button", { name: "Not today" }).click(); await page.waitForTimeout(1200);
-  check("button swipe advances by exactly one", (await title()) === n1 && (await leftCount()) === c0 - 2);
-
-  // undo brings the last card back
-  await page.getByRole("button", { name: /^Undo$/ }).click(); await page.waitForTimeout(1200);
-  check("undo restores the previous card", (await title()) === tb && (await leftCount()) === c0 - 1, `title "${await title()}" vs "${tb}"`);
+  await dragCard(second, 40);
+  check("short drag does not vote", (await likeBtn().getAttribute("aria-pressed")) !== "true" && (await dislikeBtn().getAttribute("aria-pressed")) !== "true");
+  await dragCard(second, 150);
+  check("drag right likes the dish", (await likeBtn().getAttribute("aria-pressed")) === "true");
+  await page.reload(); await cards.first().waitFor(); await closeYesterday();
+  check("drag vote persists", (await cards.nth(1).getByRole("button", { name: "I want this" }).getAttribute("aria-pressed")) === "true");
+  await dragCard(cards.nth(1), -150);
+  check("drag left dislikes the dish", (await cards.nth(1).getByRole("button", { name: "Not today" }).getAttribute("aria-pressed")) === "true");
+  await cards.nth(1).getByRole("button", { name: "Not today" }).click(); await page.waitForTimeout(800); // clear
+  check("page still scrolls vertically", await page.evaluate(() => { window.scrollTo(0, 400); return window.scrollY > 100; }));
 
   step("goto /plan");
   // --- availability grid ---
   await page.goto(`${BASE}/plan`);
   const grid = page.getByTestId("availability-grid");
-  await grid.waitFor({ timeout: 30000 });
+  await grid.waitFor({ timeout: 30000 }); await closeYesterday();
   const rows = grid.locator("[data-row]");
-  const r1 = await rows.nth(1).boundingBox(); const r5 = await rows.nth(5).boundingBox();
-  const x = r1.x + r1.width * 0.4;
-  await page.mouse.move(x, r1.y + r1.height / 2); await page.mouse.down();
-  for (let i = 1; i <= 8; i++) await page.mouse.move(x, r1.y + r1.height / 2 + ((r5.y - r1.y) * i) / 8);
-  await page.mouse.up();
-  await page.waitForTimeout(1500);
-  const win = await page.getByTestId("grid-window").innerText();
-  const st = await page.getByTestId("grid-status").innerText();
-  check("grid drag selects 11:15 – 12:15", win.includes("11:15 – 12:15"), win);
+  const winText = () => page.getByTestId("grid-window").innerText();
+  const drag = async (a, b) => {
+    const ra = await rows.nth(a).boundingBox(); const rb = await rows.nth(b).boundingBox();
+    const x = ra.x + ra.width * 0.4;
+    await page.mouse.move(x, ra.y + ra.height / 2); await page.mouse.down();
+    for (let i = 1; i <= 6; i++) await page.mouse.move(x, ra.y + ra.height / 2 + ((rb.y - ra.y) * i) / 6);
+    await page.mouse.up(); await page.waitForTimeout(1200);
+  };
+  // start from a clean slate (alice is seeded with 11:45–13:00)
+  if ((await winText()).includes("Your windows")) { await page.getByRole("button", { name: /Clear/ }).click(); await page.waitForTimeout(1000); }
+  await drag(1, 5);
+  const win = await winText(); const st = await page.getByTestId("grid-status").innerText();
+  check("grid drag paints 11:15–12:15", win.includes("11:15–12:15") && !win.includes(","), win);
   check("grid saves", st.includes("Saved"), st);
-  await page.reload(); await grid.waitFor();
-  check("grid window persists after reload", (await page.getByTestId("grid-window").innerText()).includes("11:15 – 12:15"));
+  await page.reload(); await grid.waitFor(); await closeYesterday();
+  check("grid windows persist after reload", (await winText()).includes("11:15–12:15"));
 
-  // restore the seeded demo window for alice (11:45 – 13:00 = rows 3..8)
-  const r3 = await rows.nth(3).boundingBox(); const r8 = await rows.nth(8).boundingBox();
-  await page.mouse.move(x, r3.y + r3.height / 2); await page.mouse.down();
-  for (let i = 1; i <= 8; i++) await page.mouse.move(x, r3.y + r3.height / 2 + ((r8.y - r3.y) * i) / 8);
-  await page.mouse.up(); await page.waitForTimeout(1200);
-  check("restore demo window", (await page.getByTestId("grid-window").innerText()).includes("11:45 – 13:00"));
+  await drag(10, 11); // a second, separate window must be added, not replace the first
+  const multi = await winText();
+  check("second window is added (multiple windows)", multi.includes("11:15–12:15") && multi.includes("13:30–13:45"), multi);
 
-  // group page shows the consensus + commit form
-  await page.goto(`${BASE}/groups`);
+  await drag(1, 2); // starting a drag on a selected row erases
+  const erased = await winText();
+  check("dragging over a selection erases it", erased.includes("11:45–12:15") && erased.includes("13:30–13:45") && !erased.includes("11:15"), erased);
+
+  await page.reload(); await grid.waitFor(); await closeYesterday();
+  check("multiple windows persist after reload", (await winText()).includes("13:30–13:45"));
+
+  // restore the seeded demo window for alice: clear, then paint 11:45–13:00 (rows 3..8)
+  await page.getByRole("button", { name: /Clear/ }).click(); await page.waitForTimeout(1000);
+  await drag(3, 8);
+  check("restore demo window", (await winText()).includes("11:45–13:00") && !(await winText()).includes(","), await winText());
+
+  // group page: vote → (bob already voted the same) majority → decided → reopen
+  await page.goto(`${BASE}/groups`); await page.waitForLoadState("networkidle"); await closeYesterday();
   await page.locator('a[href^="/groups/"]:not([href="/groups/new"])').first().click();
-  await page.waitForURL(/\/groups\/[^/]+$/);
-  const commitBtn = page.getByRole("button", { name: /Commit for the group/ });
-  let commitVisible = true; try { await commitBtn.waitFor({ state: "visible", timeout: 10000 }); } catch { commitVisible = false; }
-  check("group page offers commit", commitVisible, commitVisible ? "" : (await page.locator("main").innerText()).slice(0, 300).replace(/\n+/g, " | "));
+  await page.waitForURL(/\/groups\/[^/]+$/); await closeYesterday();
+  if (await page.getByRole("button", { name: /Reopen the vote/ }).isVisible().catch(() => false)) { await page.getByRole("button", { name: /Reopen the vote/ }).click(); await page.waitForTimeout(1200); }
+  const panel = page.getByTestId("vote-panel");
+  let hasPanel = true; try { await panel.waitFor({ timeout: 10000 }); } catch { hasPanel = false; }
+  check("group page offers a vote", hasPanel);
+  if (hasPanel) {
+    const first = page.getByTestId("vote-option").first();
+    const label = await first.innerText();
+    await first.click(); await page.waitForTimeout(1500);
+    const decided = await page.getByText(/Decided by majority vote|Vote ended/).isVisible().catch(() => false);
+    const pressed = (await page.getByTestId("vote-option").first().getAttribute("aria-pressed").catch(() => null)) === "true";
+    check("voting works (majority auto-decides or vote is recorded)", decided || pressed, label.split("\n")[0]);
+    if (!decided) { await page.getByTestId("end-vote").click(); await page.waitForTimeout(1500); }
+    check("decision shows the agreed mensa and time", await page.getByText(/Agreed/).isVisible());
+    await page.getByRole("button", { name: /Reopen the vote/ }).click(); await page.waitForTimeout(1200);
+    check("reopening restores the vote", await page.getByTestId("vote-panel").isVisible());
+  }
 } catch (e) {
   check("script completed", false, e.message);
 } finally {

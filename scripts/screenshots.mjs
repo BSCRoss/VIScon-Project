@@ -10,7 +10,7 @@ page.on("console", (m) => { if (m.type() === "error") console.log("console error
 await page.goto(`${BASE}/login`); await page.screenshot({ path: `${OUT}/login.png` });
 await page.fill('input[name="username"]', "alice"); await page.fill('input[name="password"]', "password123"); await page.click('button[type="submit"]');
 await page.waitForURL(/\/today/);
-for (const [name, path] of [["today", "/today"], ["swipe", "/swipe"], ["plan", "/plan"], ["groups", "/groups"], ["settings", "/settings"], ["onboarding", "/onboarding"]]) {
+for (const [name, path] of [["today", "/today"], ["plan", "/plan"], ["groups", "/groups"], ["settings", "/settings"], ["onboarding", "/onboarding"]]) {
   await page.goto(`${BASE}${path}`); await page.waitForLoadState("networkidle"); await page.waitForTimeout(500);
   await page.screenshot({ path: `${OUT}/${name}.png`, fullPage: name === "today" || name === "onboarding" });
 }

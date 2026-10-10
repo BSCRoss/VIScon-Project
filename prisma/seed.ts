@@ -4,27 +4,13 @@
  * Run: pnpm db:seed   (uses DATABASE_URL and DEMO_DATE from .env)
  */
 import { PrismaClient, Campus, MenuSource, MealTime, Area } from "@prisma/client";
+import { ALLERGENS } from "../src/lib/allergens";
 import bcrypt from "bcryptjs";
-import { appDate, toIso } from "../src/lib/time";
+import { addDays, appDate, dateOnly, mondayOf, toIso, SLOT_STEP } from "../src/lib/time";
 
 const prisma = new PrismaClient();
 
-export const ALLERGENS: { id: number; nameEn: string; nameDe: string }[] = [
-  { id: 1, nameEn: "Cereals containing gluten", nameDe: "Glutenhaltiges Getreide" },
-  { id: 2, nameEn: "Crustaceans", nameDe: "Krebstiere" },
-  { id: 3, nameEn: "Eggs", nameDe: "Eier" },
-  { id: 4, nameEn: "Fish", nameDe: "Fisch" },
-  { id: 5, nameEn: "Peanuts", nameDe: "Erdnüsse" },
-  { id: 6, nameEn: "Soya", nameDe: "Soja" },
-  { id: 7, nameEn: "Milk", nameDe: "Milch" },
-  { id: 8, nameEn: "Nuts", nameDe: "Hartschalenobst (Nüsse)" },
-  { id: 9, nameEn: "Celery", nameDe: "Sellerie" },
-  { id: 10, nameEn: "Mustard", nameDe: "Senf" },
-  { id: 11, nameEn: "Sesame", nameDe: "Sesam" },
-  { id: 12, nameEn: "Sulphur dioxide and sulphites", nameDe: "Schwefeldioxid und Sulfite" },
-  { id: 13, nameEn: "Lupines", nameDe: "Lupine" },
-  { id: 14, nameEn: "Molluscs", nameDe: "Weichtiere" },
-];
+
 
 const MENSAS = [
   { source: MenuSource.ETH_COOKPIT, sourceId: "9", name: "Mensa Polyterrasse", campus: Campus.ETH_ZENTRUM, infoUrl: "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/zentrum/mensa-polyterrasse.html" },
@@ -118,15 +104,56 @@ async function main() {
 
   // Availability windows for the app date (overlap 12:15–13:00 → the group can commit)
   for (const u of DEMO_USERS) {
-    const [fromMinutes, toMinutes] = u.window;
+    const [from, to] = u.window;
+    const slots: number[] = [];
+    for (let m = from; m <= to; m += SLOT_STEP) slots.push(m);
     await prisma.plan.upsert({
       where: { userId_date: { userId: users[u.username], date } },
-      update: { groupId: group.id, fromMinutes, toMinutes },
-      create: { userId: users[u.username], date, groupId: group.id, fromMinutes, toMinutes },
+      update: { groupId: group.id, slots },
+      create: { userId: users[u.username], date, groupId: group.id, slots },
     });
   }
 
-  // Swipes: on real Polyterrasse dishes for the date if imported, else on the fake UZH dishes.
+  // Synthetic vote history on the other days of the week (SYNTHETIC: bootstraps the popularity prediction
+  // until real users have voted). Six "history" users vote by simple taste rules + deterministic jitter.
+  const monday = mondayOf(dateIso);
+  const pastDays = [0, 1, 2, 3, 4].map((i) => addDays(monday, i)).filter((d) => d !== dateIso);
+  const past = await prisma.dish.findMany({ where: { date: { in: pastDays.map(dateOnly) }, mealTime: MealTime.LUNCH }, select: { id: true, name: true, description: true, lineName: true, priceStudent: true } });
+  const histUsers: string[] = [];
+  for (let i = 1; i <= 6; i++) {
+    const row = await prisma.user.upsert({ where: { username: `hist${i}` }, update: {}, create: { username: `hist${i}`, displayName: `History ${i}`, passwordHash } });
+    histUsers.push(row.id);
+  }
+  // Student taste model (SYNTHETIC). Only a minority of dishes are real crowd-pullers; most are middling;
+  // "healthy but boring" and expensive per-100g items sell slowly. Price matters: cheap wins.
+  const HIT = /pizza|burger|pasta|penne|spaghetti|lasagne|curry|ramen|noodle|wok|schnitzel|fries|pommes|chicken wings|kebab|döner|doner|gyoza|fried chicken|tacos|burrito|mac ?&? ?cheese|cordon bleu|bratwurst|rösti|risotto|bolognese|carbonara|pad thai|krapow|kra paow/i;
+  const OK = /bowl|poulet|chicken|salmon|lachs|steak|beef|rind|pork|schwein|thai|teriyaki|falafel|wrap|quesadilla/i;
+  const FLOP = /tofu|soup|suppe|salat|salad|buffet|100 ?g|lentil|linsen|cauliflower|blumenkohl|porridge|quinoa|steamed|gedämpft|liver|leber|polenta|beetroot|rande|kohl|cabbage|fish fillet|fischfilet|qingzheng|boiled|gekocht/i;
+  const h = (t: string) => { let x = 2166136261; for (let i = 0; i < t.length; i++) x = Math.imul(x ^ t.charCodeAt(i), 16777619); return (x >>> 0) % 100; };
+  let histVotes = 0;
+  for (const d of past) {
+    const text = `${d.name} ${d.lineName ?? ""} ${d.description ?? ""}`;
+    let bias = HIT.test(text) ? 0.65 : FLOP.test(text) ? -0.6 : OK.test(text) ? 0.15 : -0.2;
+    const price = d.priceStudent === null ? null : Number(d.priceStudent);
+    if (price !== null) bias += Math.max(-0.3, Math.min(0.2, (8.5 - price) / 10)); // CHF 6.50 → +0.2, CHF 12 → -0.3
+    bias += (h(`dish:${d.id}`) / 100 - 0.5) * 0.3; // per-dish personality so not every pizza is identical
+    for (const [i, uid] of histUsers.entries()) {
+      if (h(`${d.id}:${i}:skip`) < 40) continue; // not everyone votes on everything
+      const r = h(`${d.id}:${i}`) / 100; // 0..1
+      const p = Math.max(0.05, Math.min(0.95, 0.5 + bias / 2)); // probability of liking
+      const value = r < p ? (r < p * 0.3 ? 2 : 1) : r > 0.92 ? -2 : -1;
+      await prisma.swipe.upsert({ where: { userId_dishId: { userId: uid, dishId: d.id } }, update: { value }, create: { userId: uid, dishId: d.id, value } });
+      histVotes++;
+    }
+  }
+  // Bob has already voted (Polyterrasse 12:15): one more vote on the same option = majority → decided live on stage.
+  await prisma.groupVote.upsert({
+    where: { groupId_date_userId: { groupId: group.id, date, userId: users.bob } },
+    update: { mensaId: mensaIds["9"], slotMinutes: 12 * 60 + 15 },
+    create: { groupId: group.id, date, userId: users.bob, mensaId: mensaIds["9"], slotMinutes: 12 * 60 + 15 },
+  });
+
+  // Demo users' swipes: on real Polyterrasse dishes for the date if imported, else on the fake UZH dishes.
   const poly = await prisma.dish.findMany({ where: { date, mealTime: "LUNCH", mensaId: mensaIds["9"] }, orderBy: { lineName: "asc" }, take: 4 });
   const targets = poly.length >= 3 ? poly.map((d) => d.id) : fakeDishIds;
   if (targets.length >= 4) {
@@ -135,9 +162,32 @@ async function main() {
       { userId: users.bob, dishId: targets[0], value: 1 }, { userId: users.bob, dishId: targets[3], value: -2 },
       { userId: users.carol, dishId: targets[0], value: 1 }, { userId: users.carol, dishId: targets[2], value: 2 },
     ];
-    for (const s of sw) await prisma.swipe.upsert({ where: { userId_dishId: { userId: s.userId, dishId: s.dishId } }, update: { value: s.value }, create: s });
+    for (const x of sw) await prisma.swipe.upsert({ where: { userId_dishId: { userId: x.userId, dishId: x.dishId } }, update: { value: x.value }, create: x });
   }
 
+  // Yesterday (previous weekday): the group agreed on Polyterrasse and the demo users liked dishes there,
+  // so the "how was yesterday?" popup can infer where they were and what they probably ate.
+  let yIso = addDays(dateIso, -1);
+  const wd = (d: string) => ((dateOnly(d).getUTCDay() + 6) % 7) + 1;
+  if (wd(yIso) > 5) yIso = addDays(yIso, -(wd(yIso) - 5));
+  const yDate = dateOnly(yIso);
+  const yAll = await prisma.dish.findMany({ where: { date: yDate, mealTime: MealTime.LUNCH, mensaId: mensaIds["9"], imageUrl: { not: null } }, orderBy: { name: "asc" } });
+  const CROWD = /pasta|noodle|nudel|curry|chicken|poulet|burger|pizza|bolognese|schnitzel|risotto|ramen|wok/i;
+  const yPoly = [...yAll.filter((d) => CROWD.test(`${d.name} ${d.lineName ?? ""}`)), ...yAll.filter((d) => !CROWD.test(`${d.name} ${d.lineName ?? ""}`))].slice(0, 3);
+  if (yPoly.length >= 2) {
+    await prisma.groupDecision.upsert({
+      where: { groupId_date: { groupId: group.id, date: yDate } },
+      update: { mensaId: mensaIds["9"], slotMinutes: 12 * 60 + 15, committedById: users.alice },
+      create: { groupId: group.id, date: yDate, mensaId: mensaIds["9"], slotMinutes: 12 * 60 + 15, committedById: users.alice },
+    });
+    const ySw = [
+      { userId: users.alice, dishId: yPoly[0].id, value: 2 }, { userId: users.bob, dishId: yPoly[1].id, value: 1 }, { userId: users.carol, dishId: yPoly[0].id, value: 1 },
+    ];
+    for (const x of ySw) await prisma.swipe.upsert({ where: { userId_dishId: { userId: x.userId, dishId: x.dishId } }, update: { value: x.value }, create: x });
+    console.log(`Yesterday (${yIso}): group decision Polyterrasse 12:15 + likes on "${yPoly[0].name}" / "${yPoly[1].name}".`);
+  }
+
+  console.log(`Synthetic history: ${histVotes} votes on ${past.length} dishes from ${pastDays.join(", ")}.`);
   console.log(`Seeded for ${dateIso}: ${ALLERGENS.length} allergens, ${MENSAS.length} mensas, ${fakeDishIds.length} fake UZH dishes, 3 users (password123) with weekday areas + availability, group "Hackathon". Swipes on ${poly.length >= 3 ? "real Polyterrasse" : "fake UZH"} dishes.`);
 }
 

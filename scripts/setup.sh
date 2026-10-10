@@ -8,8 +8,10 @@
 #   3. creates .env from .env.example if missing and fills AUTH_SECRET / CRON_SECRET
 #   4. makes sure a Postgres is reachable:
 #        - uses DATABASE_URL from .env if it answers
-#        - otherwise starts a local Docker container "greygiraffe-pg" on port 54329
+#        - otherwise starts Postgres (+ Qdrant) with `docker compose up -d` on port 54329
 #   5. applies migrations and seeds demo data (alice / bob / carol, password123)
+#   6. imports this week's real ETH menus, re-seeds (synthetic vote history needs the menus), and builds
+#      the popularity predictions (Qdrant if Docker is available, in-memory otherwise)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -56,28 +58,35 @@ else
   echo "DATABASE_URL in .env is not reachable – trying Docker"
   command -v docker >/dev/null || die "No reachable database and no Docker. Either: (a) install Docker Desktop, or (b) put a Neon/Postgres URL into DATABASE_URL and DIRECT_URL in .env, then re-run."
   docker info >/dev/null 2>&1 || die "Docker is installed but not running. Start Docker Desktop and re-run."
-  if ! docker ps -a --format '{{.Names}}' | grep -qx greygiraffe-pg; then
-    docker run -d --name greygiraffe-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=greygiraffe -p 54329:5432 postgres:16-alpine >/dev/null
-    echo "started Postgres container greygiraffe-pg on port 54329"
-  else
-    docker start greygiraffe-pg >/dev/null; echo "started existing container greygiraffe-pg"
-  fi
+  docker compose up -d postgres qdrant >/dev/null
+  echo "started Postgres (54329) and Qdrant (6333) via docker compose"
   LOCAL='postgresql://postgres:postgres@127.0.0.1:54329/greygiraffe'
   sed -i.bak -e "s#^DATABASE_URL=.*#DATABASE_URL=\"$LOCAL\"#" -e "s#^DIRECT_URL=.*#DIRECT_URL=\"$LOCAL\"#" .env && rm -f .env.bak
-  for i in $(seq 1 30); do docker exec greygiraffe-pg pg_isready -U postgres >/dev/null 2>&1 && break; sleep 1; done
+  for i in $(seq 1 30); do docker compose exec -T postgres pg_isready -U postgres >/dev/null 2>&1 && break; sleep 1; done
   echo "wrote local DATABASE_URL/DIRECT_URL into .env"
 fi
 
-bold "5/5 Schema + seed"
+bold "5/6 Schema + seed"
 pnpm exec prisma migrate deploy
 pnpm exec prisma db seed
+
+bold "6/6 Menus + predictions"
+# Qdrant: start it if Docker is around (harmless if already running); otherwise the in-memory fallback is used
+if command -v docker >/dev/null && docker info >/dev/null 2>&1; then docker compose up -d qdrant >/dev/null 2>&1 && echo "qdrant up (docker compose)"; fi
+if pnpm import:menus eth >/dev/null 2>&1; then
+  echo "imported this week's ETH menus (photos resized + cached)"
+  pnpm exec prisma db seed >/dev/null 2>&1 && echo "seeded synthetic vote history on this week's menus"
+  pnpm popularity 2>/dev/null | grep -E '^\{' || echo "popularity step skipped (see: pnpm popularity)"
+else
+  echo "ETH menu import failed (offline?). Seeded demo dishes are still there; run: pnpm import:menus"
+fi
 
 bold "Done."
 cat <<MSG
 
   Start the app:        pnpm dev         → http://localhost:3001
   Log in as:            alice / password123   (also bob, carol)
-  Load real ETH menus:  pnpm import:menus  (no server needed)
+  Re-import menus:      pnpm import:menus      Predictions: pnpm popularity      Reset demo: pnpm demo:reset
   Checks:               pnpm typecheck && pnpm lint && pnpm test
 
   Phone on the same Wi-Fi: add  AUTH_URL=http://<your-LAN-IP>:3001  to .env, then open that URL.

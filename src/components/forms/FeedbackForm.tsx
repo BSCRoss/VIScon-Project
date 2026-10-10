@@ -1,22 +1,24 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { submitFeedback } from "@/lib/actions/feedback";
 import type { ActionResult } from "@/lib/actions/types";
 import { QUEUE_LABEL } from "@/lib/labels";
 import { formatSlot, slots } from "@/lib/time";
 import { FormMessage, SubmitButton } from "@/components/ui";
+import { StarRating } from "@/components/StarRating";
 
 export type FeedbackFormProps = {
   mensas: { id: string; name: string }[];
   likedDishes: { id: string; name: string; mensaId: string }[];
   defaultMensaId: string;
   planSlot: number | null;
-  existing: { mensaId: string; dishId: string | null; queueBucket: string; rating: number; waitMinutes: number | null; wouldAgain: boolean | null; arrivedAt: number | null; comment: string | null } | null;
+  existing: { mensaId: string; dishId: string | null; queueBucket: string | null; rating: number; waitMinutes: number | null; wouldAgain: boolean | null; arrivedAt: number | null; comment: string | null } | null;
 };
 
 export function FeedbackForm({ mensas, likedDishes, defaultMensaId, planSlot, existing }: FeedbackFormProps) {
   const [state, action] = useActionState<ActionResult | undefined, FormData>(submitFeedback, undefined);
+  const [rating, setRating] = useState<number | null>(existing?.rating ?? null);
   return (
     <form action={action} className="space-y-5">
       <label className="block"><span className="label">Where did you eat?</span>
@@ -31,22 +33,18 @@ export function FeedbackForm({ mensas, likedDishes, defaultMensaId, planSlot, ex
         </select>
       </label>
       <fieldset>
-        <legend className="label">How many people were queueing?</legend>
+        <legend className="label">How many people were queueing? <span className="font-normal">(optional)</span></legend>
         <div className="grid grid-cols-2 gap-2">
           {(Object.keys(QUEUE_LABEL) as (keyof typeof QUEUE_LABEL)[]).map((k) => (
-            <label key={k} className="tile"><input type="radio" name="queueBucket" value={k} required defaultChecked={existing?.queueBucket === k} className="peer sr-only" /><span className="tile-inner">{QUEUE_LABEL[k]}</span></label>
+            <label key={k} className="tile"><input type="radio" name="queueBucket" value={k} defaultChecked={existing?.queueBucket === k} className="peer sr-only" /><span className="tile-inner">{QUEUE_LABEL[k]}</span></label>
           ))}
         </div>
       </fieldset>
       <label className="block"><span className="label">How long did you wait? (minutes, optional)</span><input name="waitMinutes" type="number" min={0} max={180} inputMode="numeric" defaultValue={existing?.waitMinutes ?? ""} className="input" /></label>
-      <fieldset>
-        <legend className="label">Rate your dish</legend>
-        <div className="grid grid-cols-5 gap-2">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <label key={n} className="tile"><input type="radio" name="rating" value={n} required defaultChecked={existing?.rating === n} className="peer sr-only" /><span className="tile-inner text-[13px]">{n}★</span></label>
-          ))}
-        </div>
-      </fieldset>
+      <div>
+        <p className="label">Rate your dish</p>
+        <StarRating value={rating} onChange={setRating} />
+      </div>
       <fieldset>
         <legend className="label">Would you eat it again?</legend>
         <div className="grid grid-cols-2 gap-2">

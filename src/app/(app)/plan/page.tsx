@@ -21,7 +21,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
 
   return (
     <div>
-      <AppHeader eyebrow="Plan" title="When can you start?" subtitle="Your window is shared with the group so you can see where everyone overlaps." />
+      <AppHeader eyebrow="Plan" title="Your lunch plan" subtitle="Pick the group you eat with, then mark when you can start. The group column shows where everyone overlaps." />
 
       {groups.length === 0 ? (
         <div className="card text-center text-[14px] text-muted">
@@ -40,7 +40,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
               groupId={gt.group.id}
               slots={slots}
               othersTotal={othersTotal}
-              initial={plan?.groupId === gt.group.id && plan?.fromMinutes != null && plan?.toMinutes != null ? { from: plan.fromMinutes, to: plan.toMinutes } : null}
+              initial={plan?.groupId === gt.group.id ? plan.slots : []}
               fullOverlapSlots={gt.summary.fullOverlapSlots}
               decisionSlot={gt.decision?.slotMinutes ?? null}
             />

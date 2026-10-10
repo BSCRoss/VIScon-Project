@@ -4,7 +4,7 @@
 
 ## 0. Shared elements
 
-- **Bottom nav** (`components/BottomNav.tsx`): Today (`/today`), Swipe (`/swipe`), Group (`/groups`), Me (`/settings`). Highlight the active tab. Show a small badge on Group when there are pending invites, and on Today when feedback is pending.
+- **Bottom nav** (`components/BottomNav.tsx`): Today (`/today`), Plan (`/plan`), Group (`/groups`), Me (`/settings`). Highlight the active tab. Show a small badge on Group when there are pending invites, and on Today when feedback is pending.
 - **Dish card** (`components/DishCard.tsx`): image (fallback: neutral placeholder with mensa initial), mensa name, line name, dish name, description (truncate to 2 lines, expandable), student price, badges for Vegan / Vegetarian, allergen icons as small chips with numbers 1–14 and a tooltip name. If the dish contains an allergen the user flagged, show a red "contains X" chip.
 - **Feedback prompt** (`components/FeedbackPrompt.tsx`): a sticky banner at the top of any screen when `getPendingFeedback` returns a plan: "How was lunch at {mensa}?" → opens `/feedback`.
 - **Empty states** must say what to do next (e.g. "No menus yet for today. Menus are imported each morning.").
@@ -38,7 +38,7 @@ Route: `/today`.
 - Primary button at the bottom: "Swipe through today's menu" → `/swipe` (hidden when every dish is already swiped).
 - Accept: loads in < 1 s with ~40 dishes; works for a user with 3 mensas; shows the empty state if the import has not run.
 
-## 4. Swipe deck
+## 4. Swipe deck – REMOVED (decision 15): voting lives on the Today cards (drag right/left, thumb buttons). The section below is historical.
 
 Route: `/swipe`. Client component `SwipeDeck`.
 

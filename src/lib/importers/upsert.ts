@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/db";
 import { dateOnly } from "@/lib/time";
 import type { NormalizedDish, NormalizedMensa } from "./types";
+import { ensureAllergens } from "@/lib/allergens";
 
 /** Upserts mensas on (source, sourceId) and dishes on (mensaId, sourceKey); replaces dish allergens. */
 export async function upsertNormalized(mensas: NormalizedMensa[], dishes: NormalizedDish[]) {
   const errors: string[] = [];
+  await ensureAllergens();
 
   for (const m of mensas) {
     await prisma.mensa.upsert({

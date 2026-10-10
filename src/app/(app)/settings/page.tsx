@@ -14,7 +14,7 @@ export default async function SettingsPage() {
   const showDev = await canRunImport(user.username);
   return (
     <div>
-      <AppHeader eyebrow="Account" title={me.displayName ?? me.username} subtitle={`@${me.username}`} />
+      <AppHeader eyebrow="Preferences" title={me.displayName ?? me.username} subtitle={`@${me.username}`} />
 
       <section className="card mb-4 space-y-4">
         <div>
@@ -22,7 +22,7 @@ export default async function SettingsPage() {
           <div className="flex gap-1.5">
             {WEEKDAYS.map((wd) => {
               const a = me.weekdays.find((w) => w.weekday === wd)?.area;
-              return <span key={wd} className={`chip px-2 py-1 ${a ? "bg-brand-50 text-brand-800" : "bg-stone-100 text-muted"}`}>{WEEKDAY_LABEL[wd]} · {a ? AREA_SHORT[a] : "off"}</span>;
+              return <span key={wd} className="chip bg-brand-50 px-2 py-1 text-brand-800">{WEEKDAY_LABEL[wd]} · {a ? AREA_SHORT[a] : "Both"}</span>;
             })}
           </div>
         </div>

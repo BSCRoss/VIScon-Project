@@ -71,6 +71,7 @@ model User {
   allergens   UserAllergen[]
   weekdays    UserWeekday[]
   decisions   GroupDecision[] @relation("DecisionCommitter")
+  votes       GroupVote[]
   memberships GroupMember[]
   groupsOwned Group[]        @relation("GroupOwner")
   invitesSent GroupInvite[]  @relation("InviteFrom")
@@ -98,6 +99,7 @@ model Mensa {
   plans     Plan[]
   feedback  Feedback[]
   decisions GroupDecision[]
+  votes     GroupVote[]
 
   @@unique([source, sourceId])
 }
@@ -130,13 +132,43 @@ model Dish {
   sugar         Float?
   salt          Float?
   importedAt    DateTime @default(now())
+  /// popularity prediction from similar past dishes, -1..1 (see lib/popularity); null = not predicted yet
+  predictedScore Float?
+  /// how many similar dishes with real votes backed the prediction
+  predictedN     Int?
+  predictedAt    DateTime?
 
+  embedding DishEmbedding?
+  image     DishImage?
   allergens DishAllergen[]
   swipes    Swipe[]
   feedback  Feedback[]
 
   @@unique([mensaId, sourceKey])
   @@index([date, mensaId])
+}
+
+/// resized copies of the dish photo (lib/images.ts), served by /api/img/[dishId]. Originals are 300–650 KB.
+model DishImage {
+  dishId    String   @id
+  dish      Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  /// 192px-wide WebP for list thumbnails
+  thumb     Bytes
+  /// 720px-wide WebP for cards and the feedback popup
+  medium    Bytes
+  width     Int
+  height    Int
+  updatedAt DateTime @updatedAt
+}
+
+/// cached sentence embedding of "name + description" (lib/popularity/embed.ts)
+model DishEmbedding {
+  dishId    String   @id
+  dish      Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  model     String
+  text      String
+  vector    Float[]
+  updatedAt DateTime @updatedAt
 }
 
 /// fixed 14 rows, EU allergen codes; seeded
@@ -197,6 +229,25 @@ model Group {
   invites   GroupInvite[]
   plans     Plan[]
   decisions GroupDecision[]
+  votes     GroupVote[]
+}
+
+/// One member's vote for "mensa + start time" on a day. The vote resolves itself (lib/votes.ts):
+/// majority → decision; else 45 min before the earliest proposed time → plurality wins.
+model GroupVote {
+  id          String   @id @default(cuid())
+  groupId     String
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mensaId     String
+  mensa       Mensa    @relation(fields: [mensaId], references: [id])
+  slotMinutes Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([groupId, date, userId])
 }
 
 /// The committed outcome for a group on a day: "we eat at <mensa> at <slot>". One per group per day.
@@ -211,6 +262,8 @@ model GroupDecision {
   slotMinutes   Int
   committedById String
   committedBy   User     @relation("DecisionCommitter", fields: [committedById], references: [id])
+  /// MANUAL | VOTE_MAJORITY | VOTE_DEADLINE | VOTE_ENDED
+  method        String   @default("MANUAL")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -265,9 +318,8 @@ model Plan {
   date        DateTime @db.Date
   groupId     String?
   group       Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  /// availability window (inclusive slot bounds), minutes after midnight, 660..840 step 15
-  fromMinutes Int?
-  toMinutes   Int?
+  /// selected start slots (minutes after midnight, 660..840 step 15); several windows allowed, e.g. 11:00–12:00 and 13:00–14:00
+  slots       Int[]    @default([])
   mensaId     String?
   mensa       Mensa?   @relation(fields: [mensaId], references: [id], onDelete: SetNull)
   updatedAt   DateTime @updatedAt
@@ -285,7 +337,8 @@ model Feedback {
   mensa       Mensa       @relation(fields: [mensaId], references: [id])
   dishId      String?
   dish        Dish?       @relation(fields: [dishId], references: [id], onDelete: SetNull)
-  queueBucket QueueBucket
+  /// optional: the quick "yesterday" popup only asks for rating + would-again
+  queueBucket QueueBucket?
   waitMinutes Int?
   /// 1..5
   rating      Int

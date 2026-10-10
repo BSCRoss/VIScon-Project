@@ -11,7 +11,7 @@ import { fail, type ActionResult } from "./types";
 const schema = z.object({
   mensaId: z.string().min(1, "Pick the mensa you went to"),
   dishId: z.string().optional(),
-  queueBucket: z.enum(["NONE", "LT10", "B10_30", "GT30"], { message: "Tell us how long the queue was" }),
+  queueBucket: z.enum(["NONE", "LT10", "B10_30", "GT30"]).optional(),
   rating: z.coerce.number().int().min(1, "Rate your dish").max(5),
   waitMinutes: z.coerce.number().int().min(0).max(180).optional(),
   wouldAgain: z.enum(["yes", "no"]).optional(),
@@ -39,7 +39,7 @@ export async function submitFeedback(_prev: ActionResult | undefined, formData: 
   const data = {
     mensaId: d.mensaId,
     dishId: d.dishId ?? null,
-    queueBucket: d.queueBucket,
+    queueBucket: d.queueBucket ?? null,
     rating: d.rating,
     waitMinutes: d.waitMinutes ?? null,
     wouldAgain: d.wouldAgain === undefined ? null : d.wouldAgain === "yes",

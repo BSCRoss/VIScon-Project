@@ -17,10 +17,15 @@
     "db:reset": "prisma migrate reset --force",
     "bootstrap": "bash scripts/setup.sh",
     "import:menus": "tsx --env-file=.env scripts/import.ts",
-    "e2e": "node scripts/e2e.mjs"
+    "e2e": "node scripts/e2e.mjs",
+    "demo:reset": "tsx --env-file=.env scripts/demo-reset.ts && prisma db seed",
+    "popularity": "tsx --env-file=.env scripts/popularity.ts",
+    "images:cache": "tsx --env-file=.env scripts/images.ts"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.1",
     "@prisma/client": "6",
+    "@qdrant/js-client-rest": "^1.19.0",
     "bcryptjs": "^3.0.3",
     "lucide-react": "^1.55.0",
     "next": "15.5.27",
@@ -28,6 +33,7 @@
     "prisma": "6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "sharp": "^0.35.5",
     "zod": "^4.6.5"
   },
   "devDependencies": {

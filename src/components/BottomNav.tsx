@@ -2,21 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarClock, Layers, UserRound, Users, UtensilsCrossed } from "lucide-react";
+import { CalendarClock, SlidersHorizontal, Users, UtensilsCrossed } from "lucide-react";
 
 const items = [
   { href: "/today", label: "Today", Icon: UtensilsCrossed },
-  { href: "/swipe", label: "Swipe", Icon: Layers },
   { href: "/plan", label: "Plan", Icon: CalendarClock },
   { href: "/groups", label: "Group", Icon: Users },
-  { href: "/settings", label: "Me", Icon: UserRound },
+  { href: "/settings", label: "Preferences", Icon: SlidersHorizontal },
 ];
 
 export function BottomNav({ badges }: { badges: Partial<Record<string, number>> }) {
   const pathname = usePathname();
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
-      <ul className="mx-auto grid max-w-xl grid-cols-5">
+      <ul className="mx-auto grid max-w-xl grid-cols-4">
         {items.map(({ href, label, Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           const badge = badges[href];

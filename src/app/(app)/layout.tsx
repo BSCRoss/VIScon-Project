@@ -1,15 +1,17 @@
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { getPendingFeedback } from "@/lib/queries/feedback";
+import { getPendingFeedback, getYesterdayPrompt } from "@/lib/queries/feedback";
+import { YesterdayFeedbackModal } from "@/components/YesterdayFeedbackModal";
 import { isDemoDate, appDateString, formatDateLong } from "@/lib/time";
 import { BottomNav } from "@/components/BottomNav";
 import { FeedbackPrompt } from "@/components/FeedbackPrompt";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
-  const [invites, pending] = await Promise.all([
+  const [invites, pending, yesterday] = await Promise.all([
     prisma.groupInvite.count({ where: { toUserId: user.id, status: "PENDING" } }),
     getPendingFeedback(user.id),
+    getYesterdayPrompt(user.id),
   ]);
   return (
     <>
@@ -17,6 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <FeedbackPrompt userId={user.id} />
       <main className="mx-auto max-w-xl px-4 pb-28 pt-5">{children}</main>
       <BottomNav badges={{ "/groups": invites, "/today": pending?.due ? 1 : 0 }} />
+      {yesterday ? <YesterdayFeedbackModal prompt={yesterday} /> : null}
     </>
   );
 }

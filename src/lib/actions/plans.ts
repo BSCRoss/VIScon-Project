@@ -8,22 +8,18 @@ import { fail, ok, type ActionResult } from "./types";
 
 export type AvailabilityInput = {
   groupId: string | null;
-  /** inclusive slot bounds, or both null to clear */
-  fromMinutes: number | null;
-  toMinutes: number | null;
+  /** selected start slots in minutes; empty = no availability */
+  slots: number[];
   mensaId?: string | null;
 };
 
-/** Upserts the user's plan for the app date: group + availability window (+ optional mensa). Called from the availability grid. */
+/** Upserts the user's plan for the app date: group + selected slots (+ optional mensa). Called from the availability grid. */
 export async function saveAvailability(input: AvailabilityInput): Promise<ActionResult> {
   const user = await requireUser();
-  const { groupId, fromMinutes, toMinutes } = input;
+  const { groupId } = input;
   const mensaId = input.mensaId ?? null;
-
-  if ((fromMinutes === null) !== (toMinutes === null)) return fail("Incomplete time window");
-  if (fromMinutes !== null && toMinutes !== null) {
-    if (!isValidSlot(fromMinutes) || !isValidSlot(toMinutes) || fromMinutes > toMinutes) return fail("Pick a window between 11:00 and 14:00");
-  }
+  const slots = [...new Set(input.slots)].sort((a, b) => a - b);
+  if (!slots.every(isValidSlot)) return fail("Pick times between 11:00 and 14:00");
   if (groupId) {
     const member = await prisma.groupMember.findUnique({ where: { groupId_userId: { groupId, userId: user.id } } });
     if (!member) return fail("You are not a member of that group");
@@ -33,8 +29,8 @@ export async function saveAvailability(input: AvailabilityInput): Promise<Action
   const date = appDate();
   await prisma.plan.upsert({
     where: { userId_date: { userId: user.id, date } },
-    update: { groupId, fromMinutes, toMinutes, mensaId },
-    create: { userId: user.id, date, groupId, fromMinutes, toMinutes, mensaId },
+    update: { groupId, slots, mensaId },
+    create: { userId: user.id, date, groupId, slots, mensaId },
   });
   revalidatePath("/today");
   revalidatePath("/plan");

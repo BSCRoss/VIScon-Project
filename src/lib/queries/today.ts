@@ -3,12 +3,15 @@ import { prisma } from "@/lib/db";
 import { appDate, toIso } from "@/lib/time";
 import { areaForDate, mensaMatchesArea } from "@/lib/area";
 import { getMensaLoads } from "@/lib/load";
+import { popularityLabel, type PopularityLabel } from "@/lib/popularity";
+import { mediumUrl, thumbUrl } from "@/lib/images";
 
 const dishInclude = (userId: string) =>
   ({
     mensa: { select: { id: true, name: true, campus: true } },
     allergens: { select: { allergenId: true } },
     swipes: { where: { userId }, select: { value: true } },
+    image: { select: { dishId: true } },
   }) satisfies Prisma.DishInclude;
 
 type DishRow = Prisma.DishGetPayload<{ include: ReturnType<typeof dishInclude> }>;
@@ -25,9 +28,13 @@ export type DishDTO = {
   isVegetarian: boolean | null;
   isVegan: boolean | null;
   priceStudent: number | null;
+  /** medium (720px) image */
   imageUrl: string | null;
+  /** small (192px) thumbnail */
+  thumbUrl: string | null;
   allergenIds: number[];
   mySwipe: number | null;
+  predicted: { label: PopularityLabel; score: number; n: number } | null;
 };
 
 export function toDishDTO(d: DishRow): DishDTO {
@@ -35,7 +42,10 @@ export function toDishDTO(d: DishRow): DishDTO {
     id: d.id, mensaId: d.mensa.id, mensaName: d.mensa.name, lineName: d.lineName, name: d.name, description: d.description,
     mealClass: d.mealClass, isVegetarian: d.isVegetarian, isVegan: d.isVegan,
     priceStudent: d.priceStudent === null ? null : Number(d.priceStudent),
-    imageUrl: d.imageUrl, allergenIds: d.allergens.map((a) => a.allergenId), mySwipe: d.swipes[0]?.value ?? null,
+    imageUrl: d.imageUrl ? (d.image ? mediumUrl(d.id) : d.imageUrl) : null,
+    thumbUrl: d.imageUrl ? (d.image ? thumbUrl(d.id) : d.imageUrl) : null,
+    allergenIds: d.allergens.map((a) => a.allergenId), mySwipe: d.swipes[0]?.value ?? null,
+    predicted: (() => { const l = popularityLabel(d.predictedScore, d.predictedN); return l ? { label: l, score: d.predictedScore!, n: d.predictedN! } : null; })(),
   };
 }
 

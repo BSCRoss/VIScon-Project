@@ -38,7 +38,11 @@ export async function clearDecision(groupId: string): Promise<void> {
   const user = await requireUser();
   const member = await prisma.groupMember.findUnique({ where: { groupId_userId: { groupId, userId: user.id } } });
   if (!member) return;
-  await prisma.groupDecision.deleteMany({ where: { groupId, date: appDate() } });
+  const date = appDate();
+  await prisma.$transaction([
+    prisma.groupDecision.deleteMany({ where: { groupId, date } }),
+    prisma.groupVote.deleteMany({ where: { groupId, date } }), // reopening = a fresh vote
+  ]);
   revalidatePath("/today");
   revalidatePath("/groups", "layout");
 }

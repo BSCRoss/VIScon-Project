@@ -138,6 +138,10 @@ Minimum entities (names are suggestions):
 | 9 | Time selection (2026-10-10) | Replaces single slots: a Doodle-style grid where the user presses and slides to mark an availability window (11:00–14:00, 15-min rows) and sees how many group members are free per row. |
 | 10 | Commit (2026-10-10) | When every member has a window and at least one row is free for all, any member can commit "mensa + time". The decision shows as a banner on Today and on the group page; it can be changed. |
 | 11 | Mensa load (2026-10-10) | Traffic light per mensa on Today. Dummy model (stable pseudo-random baseline + committed groups) until queue feedback is used. |
+| 13 | Multiple windows (2026-10-10) | Availability is a set of 15-min start slots, not one window: 11:00–12:00 and 13:00–14:00 is valid. Painting adds, dragging over a selection erases. |
+| 14 | Popularity prediction (2026-10-10) | Local sentence embeddings (all-MiniLM-L6-v2) + Qdrant (in-memory fallback). A dish's demand = similarity-weighted mean vote score of its 10 nearest voted dishes. Shown as badges and fed into the load light. Bootstrapped with synthetic history until real votes exist. |
+| 15 | No separate swipe screen (2026-10-10) | Voting happens on the Today overview: drag a card right = want it, left = skip (further = double), plus thumb buttons. Tabs: Today · Plan (time + group) · Group · Me. |
+| 16 | Vote instead of commit (2026-10-10) | Members tap one of a few generated options (mensa + start time). The vote closes by itself at a majority or 45 min before the earliest proposed time (live clock), or when a member ends it; the winner becomes the decision exactly like a commit. Reopening clears the votes. |
 | 12 | Demo date (2026-10-10) | `DEMO_DATE` env pins the app's calendar date (set to Friday 2026-10-09 for the demo) so real ETH menus show. |
 
 ## 10. Tech stack

@@ -13,30 +13,34 @@ export type OnboardingProps = {
   allergens: { id: number; nameEn: string }[];
   selectedMensaIds: string[];
   selectedAllergenIds: number[];
-  weekdays: Record<number, Area | "OFF">;
+  weekdays: Record<number, Area | "BOTH">;
   vegetarian: boolean;
   vegan: boolean;
 };
 
-const CHOICES: { value: Area | "OFF"; label: string }[] = [
+const CHOICES: { value: Area | "BOTH"; label: string }[] = [
   { value: "ZENTRUM", label: AREA_SHORT.ZENTRUM },
   { value: "HOENGGERBERG", label: AREA_SHORT.HOENGGERBERG },
-  { value: "OFF", label: "Off" },
+  { value: "BOTH", label: "Both" },
 ];
 
 export function OnboardingForm(p: OnboardingProps) {
   const [state, action] = useActionState<ActionResult | undefined, FormData>(saveOnboarding, undefined);
-  const [weekdays, setWeekdays] = useState<Record<number, Area | "OFF">>(p.weekdays);
-  const activeAreas = useMemo(() => new Set(Object.values(weekdays).filter((a): a is Area => a !== "OFF")), [weekdays]);
-  // Only propose mensas in the areas the user is actually in; nothing selected yet = show all.
-  const groups = p.mensasByCampus.filter((g) => activeAreas.size === 0 || (g.area !== null && activeAreas.has(g.area)));
+  const [weekdays, setWeekdays] = useState<Record<number, Area | "BOTH">>(p.weekdays);
+  // Areas the user can be in on some weekday; "Both" on any day means both areas are relevant.
+  const activeAreas = useMemo(() => {
+    const v = Object.values(weekdays);
+    if (v.includes("BOTH")) return new Set<Area>(["ZENTRUM", "HOENGGERBERG"]);
+    return new Set(v.filter((a): a is Area => a !== "BOTH"));
+  }, [weekdays]);
+  const groups = p.mensasByCampus.filter((g) => g.area !== null && activeAreas.has(g.area));
 
   return (
     <form action={action} className="space-y-7">
       <section className="space-y-3">
         <div>
           <h2 className="section-title">Where are you each day?</h2>
-          <p className="text-[13px] text-muted">Zentrum (HG) or Hönggerberg. Change it any time under Me.</p>
+          <p className="text-[13px] text-muted">Zentrum (HG), Hönggerberg, or both. Change it any time under Preferences.</p>
         </div>
         <div className="card divide-y divide-line p-0">
           {WEEKDAYS.map((wd) => (
@@ -58,7 +62,7 @@ export function OnboardingForm(p: OnboardingProps) {
       <section className="space-y-3">
         <div>
           <h2 className="section-title">Your mensas</h2>
-          <p className="text-[13px] text-muted">{activeAreas.size ? "Showing mensas in the areas you picked." : "Pick your weekdays above to narrow this down."}</p>
+          <p className="text-[13px] text-muted">Showing mensas in the areas you picked above.</p>
         </div>
         {groups.map((g) => (
           <div key={g.campus}>

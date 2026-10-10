@@ -1,0 +1,12 @@
+node_modules
+.next
+.cache
+.git
+.env
+.env.*
+!.env.example
+screenshots
+plans
+*.md
+!README.md
+.DS_Store

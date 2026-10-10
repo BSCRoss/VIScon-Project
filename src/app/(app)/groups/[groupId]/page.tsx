@@ -1,15 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, Clock, UserPlus } from "lucide-react";
+import { CheckCircle2, UserPlus, Vote } from "lucide-react";
 import { requireUser } from "@/lib/session";
 import { getGroupToday } from "@/lib/queries/group";
 import { leaveGroup } from "@/lib/actions/groups";
 import { clearDecision } from "@/lib/actions/decisions";
 import { formatDateLong, formatSlot } from "@/lib/time";
+import { formatSlotRanges } from "@/lib/slots";
 import { SWIPE_LABEL } from "@/lib/labels";
 import { AppHeader } from "@/components/AppHeader";
 import { InviteForm } from "@/components/forms/GroupForms";
-import { CommitForm } from "@/components/forms/CommitForm";
+import { VotePanel } from "@/components/VotePanel";
+import { endVote } from "@/lib/actions/votes";
+import { isDemoDate } from "@/lib/time";
 
 function range(slotsList: number[]): string {
   if (slotsList.length === 0) return "";
@@ -21,7 +24,8 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
   const { groupId } = await params;
   const data = await getGroupToday(groupId, user.id);
   if (!data) notFound();
-  const { group, dateIso, members, memberCount, summary, decision } = data;
+  const { group, dateIso, members, memberCount, summary, decision, vote } = data;
+  const how = decision?.method === "VOTE_MAJORITY" ? "Decided by majority vote" : decision?.method === "VOTE_DEADLINE" ? "Vote closed 45 min before lunch" : decision?.method === "VOTE_ENDED" ? "Vote ended" : "Committed";
 
   return (
     <div>
@@ -34,28 +38,35 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
             <div className="min-w-0 flex-1">
               <p className="eyebrow text-brand-700">Agreed</p>
               <p className="text-[20px] font-semibold tracking-tight text-brand-800">{decision.mensa.name} · {formatSlot(decision.slotMinutes)}</p>
-              <p className="text-[12px] text-brand-700">Committed by {decision.committedBy.displayName ?? decision.committedBy.username}</p>
+              <p className="text-[12px] text-brand-700">{how} · {decision.committedBy.displayName ?? decision.committedBy.username}</p>
             </div>
           </div>
           <form action={clearDecision.bind(null, group.id)} className="mt-3 text-right">
-            <button className="btn-ghost py-1 text-[13px]">Change decision</button>
+            <button className="btn-ghost py-1 text-[13px]">Reopen the vote</button>
           </form>
         </section>
       ) : (
         <section className="card mb-5 space-y-3">
           <div className="flex items-center gap-2">
-            <Clock size={18} className="text-muted" />
-            <h2 className="section-title">Consensus</h2>
+            <Vote size={18} className="text-muted" />
+            <h2 className="section-title">Vote: where and when</h2>
           </div>
           {!summary.allSubmitted ? (
-            <p className="text-[14px] text-muted">Waiting for availability from <span className="font-medium text-ink">{summary.waitingFor.join(", ")}</span>.</p>
+            <p className="text-[13px] text-muted">Still waiting for availability from <span className="font-medium text-ink">{summary.waitingFor.join(", ")}</span> – options use the best overlap so far.</p>
           ) : summary.fullOverlapSlots.length === 0 ? (
-            <p className="text-[14px] text-muted">No slot works for everyone yet. Best so far: {range(summary.bestSlots)}. Adjust your window under <Link href={`/plan?group=${group.id}`} className="font-medium text-brand-700">Plan</Link>.</p>
+            <p className="text-[13px] text-muted">No slot works for everyone yet; options use the best overlap ({range(summary.bestSlots)}). Adjust under <Link href={`/plan?group=${group.id}`} className="font-medium text-brand-700">Plan</Link>.</p>
           ) : (
-            <p className="text-[14px]">Everyone is free <span className="font-semibold">{range(summary.fullOverlapSlots)}</span>{summary.byMensa[0] ? <> and most want <span className="font-semibold">{summary.byMensa[0].name}</span></> : null}.</p>
+            <p className="text-[13px] text-muted">Everyone is free <span className="font-semibold text-ink">{range(summary.fullOverlapSlots)}</span>{summary.byMensa[0] ? <> and most want <span className="font-semibold text-ink">{summary.byMensa[0].name}</span></> : null}. Tap an option to vote.</p>
           )}
-          {summary.canCommit ? (
-            <CommitForm groupId={group.id} mensaOptions={summary.mensaOptions} slotOptions={summary.fullOverlapSlots} suggestion={summary.suggestion} />
+          {vote.options.length ? (
+            <VotePanel groupId={group.id} options={vote.options} memberCount={memberCount} majority={vote.majority} votedCount={vote.votedCount} deadlineMinutes={vote.deadlineMinutes} notVoted={vote.notVoted} demo={isDemoDate()} />
+          ) : (
+            <p className="text-[13px] text-muted">Nothing to vote on yet: like some dishes and set your availability.</p>
+          )}
+          {vote.votedCount > 0 ? (
+            <form action={endVote.bind(null, group.id)} className="text-right">
+              <button className="btn-secondary py-1.5 text-[13px]" data-testid="end-vote">End vote now</button>
+            </form>
           ) : null}
         </section>
       )}
@@ -100,7 +111,7 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
             <li key={m.user.id} className="px-4 py-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-medium">{m.name} {m.isViewer ? <span className="text-[12px] font-normal text-muted">(you)</span> : null}</p>
-                <p className="text-[13px] tabular-nums text-muted">{m.hasAvailability ? `${formatSlot(m.plan!.fromMinutes!)}–${formatSlot(m.plan!.toMinutes!)}` : "no window yet"}</p>
+                <p className="text-[13px] tabular-nums text-muted">{m.hasAvailability ? formatSlotRanges(m.plan!.slots) : "no window yet"}</p>
               </div>
               {m.likes.length ? (
                 <div className="mt-1.5 flex flex-wrap gap-1">

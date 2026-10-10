@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { appDate, slots, toIso } from "@/lib/time";
+import { majorityNeeded, resolveGroupVote, tally, voteDeadline } from "@/lib/votes";
 
 export async function getUserGroups(userId: string) {
   return prisma.group.findMany({
@@ -30,7 +31,8 @@ export async function getGroupToday(groupId: string, viewerId: string) {
 
   const date = appDate();
   const memberIds = group.members.map((m) => m.userId);
-  const [plans, likes, decision] = await Promise.all([
+  await resolveGroupVote(groupId, date); // lazy close: majority or deadline reached since the last read
+  const [plans, likes, decision, votes] = await Promise.all([
     prisma.plan.findMany({ where: { date, userId: { in: memberIds } }, include: { mensa: { select: { id: true, name: true } } } }),
     prisma.swipe.findMany({
       where: { userId: { in: memberIds }, value: { gt: 0 }, dish: { date } },
@@ -40,6 +42,7 @@ export async function getGroupToday(groupId: string, viewerId: string) {
       where: { groupId_date: { groupId, date } },
       include: { mensa: { select: { id: true, name: true } }, committedBy: { select: { username: true, displayName: true } } },
     }),
+    prisma.groupVote.findMany({ where: { groupId, date }, include: { mensa: { select: { name: true } } } }),
   ]);
 
   const nameOf = (u: { username: string; displayName: string | null }) => u.displayName ?? u.username;
@@ -51,7 +54,7 @@ export async function getGroupToday(groupId: string, viewerId: string) {
       role: m.role,
       isViewer: m.userId === viewerId,
       plan,
-      hasAvailability: plan?.fromMinutes != null && plan?.toMinutes != null,
+      hasAvailability: (plan?.slots.length ?? 0) > 0,
       likes: likes
         .filter((s) => s.userId === m.userId)
         .sort((a, b) => b.value - a.value)
@@ -81,7 +84,7 @@ export async function getGroupToday(groupId: string, viewerId: string) {
 
   // "When": availability per 15-minute slot (inclusive windows)
   const availability: SlotAvailability[] = slots().map((slotMinutes) => {
-    const here = members.filter((m) => m.plan?.fromMinutes != null && m.plan?.toMinutes != null && m.plan.fromMinutes <= slotMinutes && slotMinutes <= m.plan.toMinutes);
+    const here = members.filter((m) => m.plan?.slots.includes(slotMinutes));
     return { slotMinutes, count: here.length, names: here.map((m) => m.name), mine: here.some((m) => m.isViewer) };
   });
   const memberCount = members.length;
@@ -100,12 +103,41 @@ export async function getGroupToday(groupId: string, viewerId: string) {
   const canCommit = allSubmitted && fullOverlapSlots.length > 0 && mensaOptions.length > 0;
   const suggestion = { slotMinutes: fullOverlapSlots[0] ?? bestSlots[0] ?? null, mensaId: mensaOptions[0]?.id ?? null };
 
+  // --- vote: options = top mensas × best slots, plus anything someone already voted for ---
+  const slotPool = (fullOverlapSlots.length ? fullOverlapSlots : bestSlots).slice(0, 3);
+  const mensaPool = mensaOptions.slice(0, 3);
+  const optionKey = (m: string, sl: number) => `${m}|${sl}`;
+  const optMap = new Map<string, { mensaId: string; mensaName: string; slotMinutes: number }>();
+  for (const m of mensaPool) for (const sl of slotPool) optMap.set(optionKey(m.id, sl), { mensaId: m.id, mensaName: m.name, slotMinutes: sl });
+  for (const v of votes) optMap.set(optionKey(v.mensaId, v.slotMinutes), { mensaId: v.mensaId, mensaName: v.mensa.name, slotMinutes: v.slotMinutes });
+  const t = tally(votes);
+  const nameById = new Map(members.map((m) => [m.user.id, m.name]));
+  const options = [...optMap.values()].map((o) => {
+    const tt = t.find((x) => x.mensaId === o.mensaId && x.slotMinutes === o.slotMinutes);
+    return { ...o, count: tt?.count ?? 0, voters: (tt?.voterIds ?? []).map((id) => nameById.get(id) ?? "?"), mine: !!tt?.voterIds.includes(viewerId) };
+  });
+  // rank: votes first, then the group's mensa ranking (most liked first), then earlier time; keep it short
+  const mensaRank = new Map(mensaOptions.map((m, i) => [m.id, i]));
+  options.sort((a, b) => b.count - a.count || (mensaRank.get(a.mensaId) ?? 99) - (mensaRank.get(b.mensaId) ?? 99) || a.slotMinutes - b.slotMinutes);
+  const MAX_OPTIONS = 6;
+  if (options.length > MAX_OPTIONS) options.splice(MAX_OPTIONS, options.length - MAX_OPTIONS, ...options.slice(MAX_OPTIONS).filter((o) => o.count > 0));
+  const myVote = votes.find((v) => v.userId === viewerId) ?? null;
+  const vote = {
+    options,
+    votedCount: votes.length,
+    majority: majorityNeeded(memberCount),
+    deadlineMinutes: voteDeadline(votes),
+    myOption: myVote ? { mensaId: myVote.mensaId, slotMinutes: myVote.slotMinutes } : null,
+    notVoted: members.filter((m) => !votes.some((v) => v.userId === m.user.id)).map((m) => m.name),
+  };
+
   return {
     group: { id: group.id, name: group.name, ownerId: group.ownerId },
     dateIso: toIso(date),
     memberCount,
     members,
     summary: { byMensa, availability, fullOverlapSlots, bestSlots, allSubmitted, waitingFor, canCommit, suggestion, mensaOptions },
+    vote,
     decision,
   };
 }

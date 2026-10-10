@@ -20,9 +20,10 @@ export default async function OnboardingPage() {
     area: areaOfCampus(campus),
     mensas: mensas.filter((m) => m.campus === campus).map((m) => ({ id: m.id, name: m.name, area: areaOfCampus(m.campus) })),
   })).filter((g) => g.mensas.length > 0);
-  const weekdays: Record<number, Area | "OFF"> = {};
-  for (const wd of WEEKDAYS) weekdays[wd] = me.weekdays.find((w) => w.weekday === wd)?.area ?? (me.weekdays.length === 0 ? "ZENTRUM" : "OFF");
   const firstTime = me.mensas.length === 0;
+  // first-time users start on Zentrum; afterwards a day without a row means "Both"
+  const weekdays: Record<number, Area | "BOTH"> = {};
+  for (const wd of WEEKDAYS) weekdays[wd] = me.weekdays.find((w) => w.weekday === wd)?.area ?? (firstTime ? "ZENTRUM" : "BOTH");
 
   return (
     <div>

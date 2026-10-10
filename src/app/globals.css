@@ -36,3 +36,14 @@ body { @apply bg-canvas text-ink antialiased; font-feature-settings: "cv11", "ss
 .tile-inner { @apply flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface px-3 py-2 text-center text-[14px] font-medium text-ink transition peer-checked:border-brand-700 peer-checked:bg-brand-50 peer-checked:text-brand-800 peer-checked:ring-1 peer-checked:ring-brand-700; }
 .section-title { @apply text-[15px] font-semibold tracking-tight text-ink; }
 .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted; }
+
+/* ---- swipe feedback ---- */
+@keyframes vote-right { 0% { transform: translateX(0); } 35% { transform: translateX(18px) rotate(1deg); } 100% { transform: translateX(0); } }
+@keyframes vote-left  { 0% { transform: translateX(0); } 35% { transform: translateX(-18px) rotate(-1deg); } 100% { transform: translateX(0); } }
+@keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+.animate-vote-right { animation: vote-right 420ms cubic-bezier(.2,.9,.3,1.2); }
+.animate-vote-left  { animation: vote-left 420ms cubic-bezier(.2,.9,.3,1.2); }
+.animate-pop { animation: pop 260ms cubic-bezier(.2,.9,.3,1.3); }
+
+/* classes composed at runtime in SwipeableDishCard (keep Tailwind from purging them) */
+@source inline("border-brand-700 bg-brand-700 text-brand-700 border-red-600 bg-red-600 text-red-600 ring-2 ring-4 ring-brand-300 ring-brand-400 ring-brand-600 ring-red-300 ring-red-400 ring-red-500");

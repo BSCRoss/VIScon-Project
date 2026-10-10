@@ -1,0 +1,17 @@
+# Local infrastructure for development: Postgres + Qdrant (vector DB for the popularity prediction).
+#   docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: greygiraffe
+    ports: ["54329:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+  qdrant:
+    image: qdrant/qdrant:v1.13.4
+    ports: ["6333:6333", "6334:6334"]
+    volumes: ["qdrant:/qdrant/storage"]
+volumes:
+  pgdata:
+  qdrant:
