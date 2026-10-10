@@ -18,46 +18,36 @@
 | Validation | `zod` for all server action / route inputs | |
 | Package manager | pnpm | |
 
-## 2. Repository layout
+## 2. Repository layout (as built)
 
 ```
 greyGiraffe/
-  plans/                       # these documents
-  app/                         # Next.js app (created at repo root, src-dir off, or inside src/ – pick one)
-    (auth)/login/page.tsx
-    (auth)/register/page.tsx
-    (app)/layout.tsx           # authenticated shell with bottom nav
-    (app)/onboarding/page.tsx
-    (app)/today/page.tsx
-    (app)/swipe/page.tsx
-    (app)/plan/page.tsx
-    (app)/groups/page.tsx
-    (app)/groups/new/page.tsx
-    (app)/groups/[groupId]/page.tsx
-    (app)/feedback/page.tsx
-    (app)/settings/page.tsx
-    api/import/route.ts        # importer trigger (cron + manual)
-    api/health/route.ts
-    api/auth/[...nextauth]/route.ts
-  lib/
-    db.ts                      # Prisma client singleton
-    auth.ts                    # Auth.js config, `auth()` helper, `requireUser()`
-    time.ts                    # zurichToday(), slot helpers (minutes <-> "12:15")
-    importers/
-      eth.ts                   # ETH cookpit importer (see 3-menu-import.md)
-      food2050.ts              # UZH importer (see 3-menu-import.md)
-      types.ts                 # NormalizedDish, NormalizedMensa
-      upsert.ts                # writes NormalizedDish[] into Prisma
-    actions/                   # server actions, one file per domain
-      auth.ts  onboarding.ts  swipes.ts  plans.ts  groups.ts  feedback.ts
-    queries/                   # read-side helpers used by pages
-      today.ts  group.ts  feedback.ts
-  components/
-    SwipeDeck.tsx  DishCard.tsx  MensaPicker.tsx  SlotPicker.tsx  GroupSummary.tsx  BottomNav.tsx  FeedbackPrompt.tsx
-  prisma/
-    schema.prisma
-    seed.ts                    # allergens, fallback UZH dishes, demo users/groups
-  vercel.json                  # cron definition
+  plans/                          # these documents
+  prisma/schema.prisma            # data model (section 4)
+  prisma/migrations/              # commit every migration
+  prisma/seed.ts                  # allergens, 4 mensas, fake UZH dishes for today, demo users alice/bob/carol
+  src/
+    auth.ts                       # Auth.js (Credentials + Prisma)   src/auth.config.ts = edge-safe part used by middleware
+    middleware.ts                 # protects everything except /login, /register, /api/import, /api/health
+    app/
+      (auth)/login, (auth)/register
+      (app)/layout.tsx            # authenticated shell: FeedbackPrompt + BottomNav
+      (app)/onboarding, today, swipe, plan, groups, groups/new, groups/[groupId], feedback, settings
+      api/import/route.ts         # GET, Bearer CRON_SECRET, ?source=eth|food2050|all&week=YYYY-MM-DD
+      api/health/route.ts
+      api/auth/[...nextauth]/route.ts
+    lib/
+      db.ts                       # Prisma singleton
+      time.ts                     # Europe/Zurich dates + 15-min slots (tested)
+      session.ts                  # requireUser(), requireOnboardedUser()
+      labels.ts                   # campus / queue / swipe labels
+      actions/                    # server actions: auth, onboarding, swipes, plans, groups, feedback, admin, types
+      queries/                    # today.ts (DishDTO), group.ts (getGroupToday summary), feedback.ts
+      importers/                  # types, upsert, eth (done, tested), food2050 (stub), index (runImport)
+    components/                   # BottomNav, DishCard, SwipeDeck, FeedbackPrompt, RunImportButton, ui, forms/*
+    types/next-auth.d.ts
+  vercel.json                     # cron
+  vitest.config.mts
   .env.example
 ```
 

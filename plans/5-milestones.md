@@ -13,13 +13,15 @@
 
 Tracks C and D can start against the Prisma schema immediately; until B lands, run `prisma db seed` which inserts a fake day of dishes.
 
-## Milestone 0 – Skeleton deployed (target: hour 2)
+## Milestone 0 – Skeleton (DONE locally on 2026-10-10; deploy still open)
 
-- [ ] `create-next-app`, Tailwind, Prisma, Auth.js installed; `.env.example` filled.
-- [ ] `schema.prisma` from `2-architecture.md` migrated to Neon.
-- [ ] Register + login work; `/today` shows "no menus yet"; bottom nav renders.
-- [ ] Deployed to Vercel; everyone can open it on their phone.
-- [ ] Seed inserts the 14 allergens, 2 ETH + 2 UZH mensas, and ~15 fake dishes for today.
+- [x] `create-next-app`, Tailwind, Prisma, Auth.js installed; `.env.example` filled.
+- [x] `schema.prisma` from `2-architecture.md` migrated to Neon.
+- [x] Register + login work; `/today` shows "no menus yet"; bottom nav renders.
+- [ ] Deployed to Vercel; everyone can open it on their phone. (Track A: create Neon DB, set env vars, `pnpm db:deploy && pnpm db:seed`)
+- [x] Seed inserts the 14 allergens, 2 ETH + 2 UZH mensas, and ~15 fake dishes for today.
+
+Also already done from later milestones: ETH importer with fixture test and `/api/import` (M1), basic swipe deck with persistence and undo (M2), plan screen (M2), groups + invites + group summary (M3), feedback prompt + form (M4). These are *working skeletons*: they need UI polish, edge cases and real-phone testing, not re-architecture.
 
 ## Milestone 1 – Real menus (target: hour 5)
 

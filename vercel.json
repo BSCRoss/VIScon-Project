@@ -1,0 +1,6 @@
+{
+  "crons": [
+    { "path": "/api/import?source=all", "schedule": "0 5 * * 1-5" },
+    { "path": "/api/import?source=all", "schedule": "30 9 * * 1-5" }
+  ]
+}

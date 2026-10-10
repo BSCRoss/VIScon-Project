@@ -1,0 +1,260 @@
+// greyGiraffe data model. Spec: plans/2-architecture.md §4
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Campus {
+  ETH_ZENTRUM
+  ETH_HOENGGERBERG
+  ETH_OERLIKON
+  ETH_BASEL
+  UZH_ZENTRUM
+  UZH_IRCHEL
+  UZH_OERLIKON
+  OTHER
+}
+
+enum MenuSource {
+  ETH_COOKPIT
+  FOOD2050
+  SEED
+}
+
+enum MealTime {
+  LUNCH
+  DINNER
+}
+
+enum GroupRole {
+  OWNER
+  MEMBER
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+/// none / <10 / 10–30 / >30 people in the queue
+enum QueueBucket {
+  NONE
+  LT10
+  B10_30
+  GT30
+}
+
+model User {
+  id           String   @id @default(cuid())
+  /// lowercase, 3–24 chars, [a-z0-9_]
+  username     String   @unique
+  passwordHash String
+  displayName  String?
+  /// soft filter preferences, not hard rules
+  vegetarian   Boolean  @default(false)
+  vegan        Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  mensas      UserMensa[]
+  allergens   UserAllergen[]
+  memberships GroupMember[]
+  groupsOwned Group[]        @relation("GroupOwner")
+  invitesSent GroupInvite[]  @relation("InviteFrom")
+  invitesGot  GroupInvite[]  @relation("InviteTo")
+  swipes      Swipe[]
+  plans       Plan[]
+  feedback    Feedback[]
+}
+
+model Mensa {
+  id           String     @id @default(cuid())
+  name         String
+  campus       Campus
+  source       MenuSource
+  /// ETH: facility-id as string ("9"). food2050: "uzh-zentrum/untere-mensa/mittag"
+  sourceId     String
+  offersLunch  Boolean    @default(true)
+  offersDinner Boolean    @default(false)
+  infoUrl      String?
+  /// hide closed/unused mensas from pickers
+  isActive     Boolean    @default(true)
+
+  dishes   Dish[]
+  users    UserMensa[]
+  plans    Plan[]
+  feedback Feedback[]
+
+  @@unique([source, sourceId])
+}
+
+model Dish {
+  id            String   @id @default(cuid())
+  mensaId       String
+  mensa         Mensa    @relation(fields: [mensaId], references: [id], onDelete: Cascade)
+  /// calendar date in Europe/Zurich, stored as UTC midnight
+  date          DateTime @db.Date
+  mealTime      MealTime
+  /// stable per source, see plans/3-menu-import.md; drives upsert
+  sourceKey     String
+  /// ETH "line" (counter) name, e.g. "Rice Up! Bowl"
+  lineName      String?
+  name          String
+  description   String?
+  /// "Meat" | "Vegetarian" | "Vegan" | "Fish" | null
+  mealClass     String?
+  isVegetarian  Boolean?
+  isVegan       Boolean?
+  priceStudent  Decimal? @db.Decimal(6, 2)
+  priceInternal Decimal? @db.Decimal(6, 2)
+  priceExternal Decimal? @db.Decimal(6, 2)
+  imageUrl      String?
+  calories      Int?
+  protein       Float?
+  fat           Float?
+  carbs         Float?
+  sugar         Float?
+  salt          Float?
+  importedAt    DateTime @default(now())
+
+  allergens DishAllergen[]
+  swipes    Swipe[]
+  feedback  Feedback[]
+
+  @@unique([mensaId, sourceKey])
+  @@index([date, mensaId])
+}
+
+/// fixed 14 rows, EU allergen codes; seeded
+model Allergen {
+  id     Int    @id
+  nameEn String
+  nameDe String
+
+  dishes DishAllergen[]
+  users  UserAllergen[]
+}
+
+model DishAllergen {
+  dishId     String
+  dish       Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  allergenId Int
+  allergen   Allergen @relation(fields: [allergenId], references: [id])
+
+  @@id([dishId, allergenId])
+}
+
+model UserAllergen {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  allergenId Int
+  allergen   Allergen @relation(fields: [allergenId], references: [id])
+
+  @@id([userId, allergenId])
+}
+
+model UserMensa {
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mensaId String
+  mensa   Mensa  @relation(fields: [mensaId], references: [id], onDelete: Cascade)
+
+  @@id([userId, mensaId])
+}
+
+model Group {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String
+  owner     User     @relation("GroupOwner", fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+
+  members GroupMember[]
+  invites GroupInvite[]
+  plans   Plan[]
+}
+
+model GroupMember {
+  groupId  String
+  group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+
+  @@id([groupId, userId])
+}
+
+model GroupInvite {
+  id         String       @id @default(cuid())
+  groupId    String
+  group      Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  fromUserId String
+  from       User         @relation("InviteFrom", fields: [fromUserId], references: [id])
+  toUserId   String
+  to         User         @relation("InviteTo", fields: [toUserId], references: [id])
+  status     InviteStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+
+  @@unique([groupId, toUserId])
+}
+
+/// one reaction per user per dish; the dish already carries the date
+model Swipe {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dishId    String
+  dish      Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  /// -2 | -1 | 1 | 2  (right = "I want to eat this today")
+  value     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, dishId])
+}
+
+/// the user's intention for one day: one lunch per day
+model Plan {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date
+  groupId     String?
+  group       Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  /// minutes after midnight, 660..840 in steps of 15 (11:00–14:00)
+  slotMinutes Int?
+  mensaId     String?
+  mensa       Mensa?   @relation(fields: [mensaId], references: [id], onDelete: SetNull)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, date])
+}
+
+/// post-meal data; one per user per day
+model Feedback {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        DateTime    @db.Date
+  mensaId     String
+  mensa       Mensa       @relation(fields: [mensaId], references: [id])
+  dishId      String?
+  dish        Dish?       @relation(fields: [dishId], references: [id], onDelete: SetNull)
+  queueBucket QueueBucket
+  waitMinutes Int?
+  /// 1..5
+  rating      Int
+  wouldAgain  Boolean?
+  comment     String?
+  /// minutes after midnight, when they actually arrived
+  arrivedAt   Int?
+  createdAt   DateTime    @default(now())
+
+  @@unique([userId, date])
+}

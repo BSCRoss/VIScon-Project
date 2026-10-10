@@ -1,0 +1,10 @@
+{
+  "name": "greyGiraffe",
+  "short_name": "greyGiraffe",
+  "description": "Coordinate lunch with your group at ETH and UZH mensas",
+  "start_url": "/today",
+  "display": "standalone",
+  "background_color": "#fafaf9",
+  "theme_color": "#1c1917",
+  "icons": [{ "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }]
+}

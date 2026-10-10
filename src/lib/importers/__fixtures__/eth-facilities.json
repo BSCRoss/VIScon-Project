@@ -1,0 +1,1424 @@
+{
+ "facility-array": [
+  {
+   "facility-id": 20,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "HCI",
+   "floor": "E",
+   "room-nr": "5",
+   "facility-name": "FUSION meal",
+   "address-line-2": "Vladimir-​Prelog-Weg 10 1",
+   "address-line-3": "8049 Zürich",
+   "phone": "+41446337067",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/hoenggerberg/fusion-meal.html",
+   "caterer-name": "Compass Group",
+   "caterer-url": "https://welcome.compass-group.ch/en/",
+   "number-of-counter-monitors": 9,
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 16,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "HPI",
+   "floor": "E",
+   "room-nr": "12.2",
+   "facility-name": "Mendokoro",
+   "address-line-2": "Wolfgang-​Pauli-Strasse 14",
+   "address-line-3": "8093 Zürich",
+   "phone": "+41446337251",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/hoenggerberg/mendokoro.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 15,
+     "desc-short": "Alc. bev.",
+     "desc": "Alcoholic beverages"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    },
+    {
+     "code": 10,
+     "desc-short": "Baked goods",
+     "desc": "Baked goods"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 14,
+     "desc-short": "Desserts",
+     "desc": "Desserts"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 9,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "MM",
+   "floor": "B",
+   "room-nr": "79",
+   "facility-name": "Mensa Polyterrasse",
+   "manager-surname": "Romano",
+   "manager-given-name": "Markus",
+   "address-line-2": "Leonhardstrasse 34",
+   "address-line-3": "8092 Zürich",
+   "phone": "+41446326201",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/zentrum/mensa-polyterrasse.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    },
+    {
+     "code": 23,
+     "desc-short": "Dinner",
+     "desc": "Dinner"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 7,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "CAB",
+   "floor": "H",
+   "room-nr": "41",
+   "facility-name": "food&lab",
+   "manager-surname": "Rezgui",
+   "manager-given-name": "Fitim",
+   "address-line-2": "Universitätsstrasse 6",
+   "address-line-3": "8092 Zürich",
+   "phone": "+41446328011",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/zentrum/food-lab.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 14,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "HIL",
+   "floor": "D",
+   "room-nr": "57.2",
+   "facility-name": "Alumni quattro Lounge",
+   "address-line-2": "Stefano-​ Franscini-​Platz 5",
+   "address-line-3": "8093 Zürich",
+   "phone": "+41446337212",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/hoenggerberg/alumni-quattro-lounge.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 10,
+     "desc-short": "Baked goods",
+     "desc": "Baked goods"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 14,
+     "desc-short": "Desserts",
+     "desc": "Desserts"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 15,
+     "desc-short": "Alc. bev.",
+     "desc": "Alcoholic beverages"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    },
+    {
+     "code": 19,
+     "desc-short": "Reservations",
+     "desc": "Table reservations possible"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    },
+    {
+     "code": 23,
+     "desc-short": "Dinner",
+     "desc": "Dinner"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 19,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "HPR",
+   "floor": "D",
+   "room-nr": "70.1",
+   "facility-name": "food market",
+   "address-line-2": "Joseph-​von-Deschwanden-Platz 1",
+   "address-line-3": "8093 Zürich",
+   "phone": "+41446337220",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/hoenggerberg/food-market-pizza-pasta.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "number-of-counter-monitors": 14,
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 19,
+     "desc-short": "Reservations",
+     "desc": "Table reservations possible"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    },
+    {
+     "code": 23,
+     "desc-short": "Dinner",
+     "desc": "Dinner"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 23,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "OCT",
+   "floor": "E",
+   "facility-name": "Octavo",
+   "manager-surname": "Moritz",
+   "manager-given-name": "Fridjof",
+   "address-line-2": "Binzmühlestrasse 130",
+   "address-line-3": "8050 Oerlikon",
+   "phone": "+41446337222",
+   "facility-url": "https://stagewcms.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/oerlikon/octavo.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 15,
+     "desc-short": "Alc. bev.",
+     "desc": "Alcoholic beverages"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    },
+    {
+     "code": 19,
+     "desc-short": "Reservations",
+     "desc": "Table reservations possible"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    },
+    {
+     "code": 10,
+     "desc-short": "Baked goods",
+     "desc": "Baked goods"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 14,
+     "desc-short": "Desserts",
+     "desc": "Desserts"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 12,
+     "desc-short": "int. & stud.",
+     "desc": "internal & students"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 8,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "GLC",
+   "floor": "E",
+   "facility-name": "Archimedes",
+   "manager-surname": "Angelini",
+   "manager-given-name": "Sandro",
+   "address-line-2": "Gloriastrasse 37/39",
+   "address-line-3": "8092 Zürich",
+   "phone": "+41 44 632 62 87",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/zentrum/archimedes.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 5,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "HG",
+   "floor": "K",
+   "room-nr": "30.5",
+   "facility-name": "Dozentenfoyer",
+   "manager-surname": "Hochstrasser",
+   "manager-given-name": "Oliver",
+   "address-line-2": "Rämistrasse 101",
+   "address-line-3": "8092 Zürich",
+   "phone": "+41446326258",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/zentrum/dozentenfoyer.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 15,
+     "desc-short": "Alc. bev.",
+     "desc": "Alcoholic beverages"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    },
+    {
+     "code": 19,
+     "desc-short": "Reservations",
+     "desc": "Table reservations possible"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    },
+    {
+     "code": 10,
+     "desc-short": "Baked goods",
+     "desc": "Baked goods"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 14,
+     "desc-short": "Desserts",
+     "desc": "Desserts"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 14,
+     "desc-short": "all",
+     "desc": "all visitors"
+    }
+   ]
+  },
+  {
+   "facility-id": 28,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "BSS",
+   "floor": "E",
+   "room-nr": "32",
+   "facility-name": "Flavour Kitchen",
+   "address-line-2": "Klingelbergstrasse 48",
+   "address-line-3": "4056 Basel",
+   "phone": "+41 61 387 42 20",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/basel/flavour-kitchen.html",
+   "caterer-name": "ZFV-Unternehmungen",
+   "caterer-url": "https://www.zfv.ch/de",
+   "payment-option-array": [
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    },
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 10,
+     "desc-short": "Baked goods",
+     "desc": "Baked goods"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 14,
+     "desc-short": "Desserts",
+     "desc": "Desserts"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 15,
+     "desc-short": "Alc. bev.",
+     "desc": "Alcoholic beverages"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    },
+    {
+     "code": 12,
+     "desc-short": "int. & stud.",
+     "desc": "internal & students"
+    }
+   ]
+  },
+  {
+   "facility-id": 3,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "CLA",
+   "floor": "D",
+   "facility-name": "Clausiusbar",
+   "address-line-2": "Tannenstrasse 3",
+   "address-line-3": "8006 Zürich",
+   "phone": "+41446326239",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/zentrum/clausiusbar.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 27,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "BSS",
+   "floor": "K",
+   "room-nr": "14",
+   "facility-name": "Science Lounge",
+   "address-line-2": "Klingelbergstrasse 48",
+   "address-line-3": "4056 Basel",
+   "phone": "+41 61 387 42 20",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/basel/science-lounge.html",
+   "caterer-name": "ZFV-Unternehmungen",
+   "caterer-url": "https://www.zfv.ch/de",
+   "payment-option-array": [
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    },
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 14,
+     "desc-short": "Desserts",
+     "desc": "Desserts"
+    },
+    {
+     "code": 10,
+     "desc-short": "Baked goods",
+     "desc": "Baked goods"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    },
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    }
+   ]
+  },
+  {
+   "facility-id": 11,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "ML",
+   "floor": "E",
+   "room-nr": "23",
+   "facility-name": "Tannenbar",
+   "manager-surname": "Zimmermann",
+   "manager-given-name": "Ines",
+   "address-line-2": "Tannenstrasse 7",
+   "address-line-3": "8092 Zürich",
+   "phone": "+41446326255",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/zentrum/tannenbar.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 10,
+     "desc-short": "Baked goods",
+     "desc": "Baked goods"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 14,
+     "desc-short": "Desserts",
+     "desc": "Desserts"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 15,
+     "desc-short": "Alc. bev.",
+     "desc": "Alcoholic beverages"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    },
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    }
+   ]
+  },
+  {
+   "facility-id": 10,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "HG",
+   "floor": "F",
+   "room-nr": "32",
+   "facility-name": "Polysnack",
+   "manager-surname": "Hochstrasser",
+   "manager-given-name": "Oliver",
+   "address-line-2": "Rämistrasse 101",
+   "address-line-3": "8092 Zürich",
+   "phone": "+41446326253",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/zentrum/polysnack.html",
+   "caterer-name": "SV Group",
+   "caterer-url": "https://www.sv-group.ch/de/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 12,
+     "desc-short": "Lunch-Check",
+     "desc": "Swiss Lunch-Check"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 10,
+     "desc-short": "Baked goods",
+     "desc": "Baked goods"
+    },
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 14,
+     "desc-short": "Desserts",
+     "desc": "Desserts"
+    },
+    {
+     "code": 16,
+     "desc-short": "Coffee",
+     "desc": "Coffee"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 11,
+     "desc-short": "Cold snacks",
+     "desc": "Cold snacks"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 17,
+     "desc-short": "Tea",
+     "desc": "Tea"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  },
+  {
+   "facility-id": 22,
+   "publication-type-code": 1,
+   "publication-type-desc": "lines with meals",
+   "publication-type-desc-short": "lines",
+   "building": "HIT",
+   "floor": "E",
+   "room-nr": "31",
+   "facility-name": "Rice Up!",
+   "manager-surname": "Gasparincic",
+   "manager-given-name": "Anija",
+   "address-line-2": "Wolfgang-​Pauli-Strasse 27",
+   "address-line-3": "8053 Zürich",
+   "phone": "+41445777699",
+   "facility-url": "https://ethz.ch/en/campus/getting-to-know/cafes-restaurants-shops/gastronomy/restaurants-and-cafeterias/hoenggerberg/rice-up.html",
+   "caterer-name": "Two Spice",
+   "caterer-url": "https://www.twospice.ch/",
+   "payment-option-array": [
+    {
+     "code": 10,
+     "desc-short": "TWINT",
+     "desc": "TWINT mobile app"
+    },
+    {
+     "code": 11,
+     "desc-short": "NCF",
+     "desc": "NFC enabled credit cards"
+    }
+   ],
+   "facility-feature-array": [
+    {
+     "code": 12,
+     "desc-short": "Warm meals",
+     "desc": "Warm main meals"
+    },
+    {
+     "code": 13,
+     "desc-short": "Dessert",
+     "desc": "Dessert"
+    },
+    {
+     "code": 18,
+     "desc-short": "Take away",
+     "desc": "Take away"
+    },
+    {
+     "code": 20,
+     "desc-short": "Child chairs",
+     "desc": "Chairs for children available"
+    },
+    {
+     "code": 22,
+     "desc-short": "Lunch",
+     "desc": "Lunch"
+    },
+    {
+     "code": 15,
+     "desc-short": "Alc. bev.",
+     "desc": "Alcoholic beverages"
+    },
+    {
+     "code": 21,
+     "desc-short": "Terrace",
+     "desc": "Terrace"
+    }
+   ],
+   "customer-group-array": [
+    {
+     "code": 10,
+     "desc-short": "stud.",
+     "desc": "students"
+    },
+    {
+     "code": 11,
+     "desc-short": "int.",
+     "desc": "internal"
+    },
+    {
+     "code": 13,
+     "desc-short": "ext.",
+     "desc": "external"
+    }
+   ]
+  }
+ ]
+}

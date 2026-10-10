@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-stone-50 text-stone-900 antialiased;
+}
+
+/* small utility layer shared by all screens */
+.input { @apply w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-base outline-none focus:border-stone-900; }
+.label { @apply mb-1 block text-sm font-medium text-stone-700; }
+.btn-primary { @apply inline-flex items-center justify-center rounded-lg bg-stone-900 px-4 py-2.5 font-medium text-white disabled:opacity-50; }
+.btn-secondary { @apply inline-flex items-center justify-center rounded-lg border border-stone-300 bg-white px-4 py-2.5 font-medium text-stone-900 disabled:opacity-50; }
+.chip { @apply rounded-full px-1.5 py-0.5 text-[11px] leading-none; }
+.tile { @apply block cursor-pointer; }
+.tile-inner { @apply flex min-h-11 items-center justify-center rounded-lg border border-stone-300 bg-white px-2 py-2 text-center text-sm peer-checked:border-stone-900 peer-checked:bg-stone-900 peer-checked:text-white; }
+.card { @apply rounded-xl border border-stone-200 bg-white p-4 shadow-sm; }
