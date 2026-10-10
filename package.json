@@ -14,7 +14,9 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
-    "db:reset": "prisma migrate reset --force"
+    "db:reset": "prisma migrate reset --force",
+    "bootstrap": "bash scripts/setup.sh",
+    "import:menus": "tsx --env-file=.env scripts/import.ts"
   },
   "dependencies": {
     "@prisma/client": "6",

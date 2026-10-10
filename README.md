@@ -8,25 +8,30 @@ Coordinate lunch with your group at ETH and UZH mensas. ETH Zurich hackathon pro
 
 Next.js 15 (App Router, TypeScript, Server Actions) · Tailwind CSS v4 · Prisma 6 + PostgreSQL · Auth.js v5 (username + password) · Vercel (hosting + cron) · Vitest.
 
-## Local setup (10 minutes)
+## Local setup
+
+Requirements: Node 20+, Docker Desktop (for a local Postgres) **or** a Postgres/Neon URL.
 
 ```bash
-pnpm install                       # also runs prisma generate
-cp .env.example .env               # Prisma reads .env; Next reads .env too
-# edit .env: DATABASE_URL / DIRECT_URL (local Postgres or a Neon branch), AUTH_SECRET (npx auth secret), CRON_SECRET
-pnpm db:migrate                    # creates tables (prisma migrate dev)
-pnpm db:seed                       # allergens, 4 mensas, fake UZH dishes for today, users alice/bob/carol (password123), group "Hackathon"
-pnpm dev                           # http://localhost:3001 (port 3001 to avoid clashing with other dev servers) → log in as alice
+git clone git@github.com:thestud1/greyGiraffe.git ~/dev/greyGiraffe   # clone outside iCloud/Dropbox folders
+cd ~/dev/greyGiraffe
+corepack enable            # gives you pnpm if you don't have it
+pnpm bootstrap             # installs, creates .env, starts/uses a database, migrates, seeds demo data
+pnpm dev                   # http://localhost:3001 → log in as alice / password123 (also bob, carol)
 ```
 
-Load real ETH menus for the current week:
+`pnpm bootstrap` is safe to re-run. It uses `DATABASE_URL` from `.env` if that database answers; otherwise it starts a Docker container `greygiraffe-pg` on port 54329 and writes its URL into `.env`. To share one database across the team, paste a Neon URL into `DATABASE_URL` and `DIRECT_URL` before running it.
+
+Load this week's real ETH menus (no server needed):
 
 ```bash
-curl -H "Authorization: Bearer $CRON_SECRET" "http://localhost:3001/api/import?source=eth"
+pnpm import:menus          # or: pnpm import:menus eth 2026-10-12
 ```
-or press **Run menu import now** under *Me* (shown in development, or for `ADMIN_USERNAMES` in production).
+The same import runs on a schedule in production via `/api/import` (see `vercel.json`), and from the **Me** screen in development.
 
-Checks: `pnpm typecheck`, `pnpm lint`, `pnpm test` (time helpers + ETH importer mapping against a saved API fixture).
+Checks before pushing: `pnpm typecheck && pnpm lint && pnpm test`.
+
+Phone on the same Wi-Fi: add `AUTH_URL=http://<your-LAN-IP>:3001` to `.env`, restart `pnpm dev`, open that URL on the phone.
 
 ## Where things live
 
@@ -43,6 +48,7 @@ src/lib/importers/*           ETH importer (done), food2050/UZH (stub – see pl
 src/app/(auth)/*              login, register
 src/app/(app)/*               onboarding, today, swipe, plan, groups, feedback, settings
 src/app/api/import            cron/manual import endpoint (Bearer CRON_SECRET)
+scripts/setup.sh, scripts/import.ts   one-command setup; import menus from the CLI
 src/components/*              BottomNav, DishCard, SwipeDeck, FeedbackPrompt, forms/*
 ```
 
