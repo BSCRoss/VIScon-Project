@@ -46,7 +46,9 @@ services:
       NODE_ENV: production
 
   scheduler:
+    build: .                      # same image as app (cached, no second build); never pulled from a registry
     image: greygiraffe:latest
+    pull_policy: never
     restart: unless-stopped
     depends_on: [app]
     entrypoint: ["node", "scripts/scheduler.mjs"]
