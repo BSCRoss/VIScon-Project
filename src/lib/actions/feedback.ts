@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { zurichToday } from "@/lib/time";
+import { appDate } from "@/lib/time";
 import { fail, type ActionResult } from "./types";
 
 const schema = z.object({
@@ -35,7 +35,7 @@ export async function submitFeedback(_prev: ActionResult | undefined, formData: 
   });
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid input");
   const d = parsed.data;
-  const date = zurichToday();
+  const date = appDate();
   const data = {
     mensaId: d.mensaId,
     dishId: d.dishId ?? null,

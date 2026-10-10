@@ -134,6 +134,11 @@ Minimum entities (names are suggestions):
 | 5 | Group convergence | Manual. App only summarises; members adjust their own plan. |
 | 6 | UZH in MVP | Yes, best case both ETH and UZH. ETH importer first, UZH second, seed as fallback. |
 | 7 | Tech stack | Next.js full-stack, see section 10. |
+| 8 | Weekday areas (2026-10-10) | Onboarding asks per weekday whether the user is at Zentrum (HG + UZH Zentrum) or Hönggerberg. Today/Swipe only propose mensas in that day's area. Editable under Me. |
+| 9 | Time selection (2026-10-10) | Replaces single slots: a Doodle-style grid where the user presses and slides to mark an availability window (11:00–14:00, 15-min rows) and sees how many group members are free per row. |
+| 10 | Commit (2026-10-10) | When every member has a window and at least one row is free for all, any member can commit "mensa + time". The decision shows as a banner on Today and on the group page; it can be changed. |
+| 11 | Mensa load (2026-10-10) | Traffic light per mensa on Today. Dummy model (stable pseudo-random baseline + committed groups) until queue feedback is used. |
+| 12 | Demo date (2026-10-10) | `DEMO_DATE` env pins the app's calendar date (set to Friday 2026-10-09 for the demo) so real ETH menus show. |
 
 ## 10. Tech stack
 

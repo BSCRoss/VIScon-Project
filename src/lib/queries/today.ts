@@ -1,6 +1,8 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { toIso, zurichToday } from "@/lib/time";
+import { appDate, toIso } from "@/lib/time";
+import { areaForDate, mensaMatchesArea } from "@/lib/area";
+import { getMensaLoads } from "@/lib/load";
 
 const dishInclude = (userId: string) =>
   ({
@@ -30,46 +32,58 @@ export type DishDTO = {
 
 export function toDishDTO(d: DishRow): DishDTO {
   return {
-    id: d.id,
-    mensaId: d.mensa.id,
-    mensaName: d.mensa.name,
-    lineName: d.lineName,
-    name: d.name,
-    description: d.description,
-    mealClass: d.mealClass,
-    isVegetarian: d.isVegetarian,
-    isVegan: d.isVegan,
+    id: d.id, mensaId: d.mensa.id, mensaName: d.mensa.name, lineName: d.lineName, name: d.name, description: d.description,
+    mealClass: d.mealClass, isVegetarian: d.isVegetarian, isVegan: d.isVegan,
     priceStudent: d.priceStudent === null ? null : Number(d.priceStudent),
-    imageUrl: d.imageUrl,
-    allergenIds: d.allergens.map((a) => a.allergenId),
-    mySwipe: d.swipes[0]?.value ?? null,
+    imageUrl: d.imageUrl, allergenIds: d.allergens.map((a) => a.allergenId), mySwipe: d.swipes[0]?.value ?? null,
   };
 }
 
-/** Today's lunch dishes at the user's mensas, with the user's swipe and flagged allergens. */
-export async function getTodayDishes(userId: string) {
-  const today = zurichToday();
+/**
+ * Everything the Today/Swipe screens need: the app date, the user's area for that weekday,
+ * the user's mensas filtered to that area, their lunch dishes, and the load indicator per mensa.
+ */
+export async function getTodayContext(userId: string) {
+  const date = appDate();
+  const dateIso = toIso(date);
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
-    include: { mensas: { include: { mensa: true } }, allergens: true },
+    include: { mensas: { include: { mensa: true } }, allergens: true, weekdays: true },
   });
-  const rows = await prisma.dish.findMany({
-    where: { date: today, mealTime: "LUNCH", mensaId: { in: user.mensas.map((m) => m.mensaId) } },
-    include: dishInclude(userId),
-    orderBy: [{ mensa: { name: "asc" } }, { lineName: "asc" }, { name: "asc" }],
-  });
+  const area = areaForDate(user.weekdays, dateIso);
+  const mensas = user.mensas.map((um) => um.mensa).filter((m) => mensaMatchesArea(m.campus, area)).sort((a, b) => a.name.localeCompare(b.name));
+  const [rows, loads] = await Promise.all([
+    prisma.dish.findMany({
+      where: { date, mealTime: "LUNCH", mensaId: { in: mensas.map((m) => m.id) } },
+      include: dishInclude(userId),
+      orderBy: [{ mensa: { name: "asc" } }, { lineName: "asc" }, { name: "asc" }],
+    }),
+    getMensaLoads(mensas.map((m) => m.id), date),
+  ]);
   return {
-    today: toIso(today),
+    dateIso,
+    area,
     user,
+    mensas,
     dishes: rows.map(toDishDTO),
     flaggedAllergenIds: user.allergens.map((a) => a.allergenId),
+    loads,
   };
 }
 
 export async function getUserPlan(userId: string) {
   return prisma.plan.findUnique({
-    where: { userId_date: { userId, date: zurichToday() } },
+    where: { userId_date: { userId, date: appDate() } },
     include: { group: { select: { id: true, name: true } }, mensa: { select: { id: true, name: true } } },
+  });
+}
+
+/** Committed decisions of all the user's groups for the app date. */
+export async function getDecisionsForUser(userId: string) {
+  return prisma.groupDecision.findMany({
+    where: { date: appDate(), group: { members: { some: { userId } } } },
+    include: { group: { select: { id: true, name: true } }, mensa: { select: { id: true, name: true } }, committedBy: { select: { username: true, displayName: true } } },
+    orderBy: { updatedAt: "desc" },
   });
 }
 

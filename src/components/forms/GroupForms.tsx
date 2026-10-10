@@ -8,7 +8,7 @@ import { FormMessage, SubmitButton } from "@/components/ui";
 export function CreateGroupForm() {
   const [state, action] = useActionState<ActionResult | undefined, FormData>(createGroup, undefined);
   return (
-    <form action={action} className="space-y-3">
+    <form action={action} className="space-y-4">
       <label className="block"><span className="label">Group name</span><input name="name" required minLength={2} maxLength={40} className="input" placeholder="e.g. Lab lunch" /></label>
       <FormMessage state={state} />
       <SubmitButton className="w-full">Create group</SubmitButton>

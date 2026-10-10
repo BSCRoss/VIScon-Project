@@ -1,12 +1,15 @@
 /**
- * All calendar/time logic goes through here. "Today" is always the Europe/Zurich calendar date,
+ * All calendar/time logic goes through here. "Today" is the Europe/Zurich calendar date,
  * stored as a UTC-midnight Date for Prisma `@db.Date` columns. Slots are minutes after midnight.
+ *
+ * DEMO_DATE (env, "YYYY-MM-DD") overrides the app's calendar date so a demo can run on a day
+ * with real menus (e.g. a Friday) while the clock still shows the real time of day.
  */
 export const ZONE = "Europe/Zurich";
 export const SLOT_MIN = 11 * 60; // 11:00
 export const SLOT_MAX = 14 * 60; // 14:00
 export const SLOT_STEP = 15;
-/** minutes after the planned slot before we ask for feedback */
+/** minutes after the agreed/planned slot before we ask for feedback */
 export const FEEDBACK_DELAY_MIN = 45;
 
 function zurichParts(now: Date = new Date()) {
@@ -17,10 +20,20 @@ function zurichParts(now: Date = new Date()) {
   return { y: +p.year, m: +p.month, d: +p.day, h: +p.hour % 24, min: +p.minute };
 }
 
-/** "YYYY-MM-DD" of today in Zurich */
+/** "YYYY-MM-DD" of the real today in Zurich */
 export function zurichTodayString(now?: Date): string {
   const { y, m, d } = zurichParts(now);
   return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+/** The app's calendar date: DEMO_DATE if set, else real Zurich today. Use this everywhere. */
+export function appDateString(now?: Date): string {
+  const demo = process.env.DEMO_DATE;
+  return demo && /^\d{4}-\d{2}-\d{2}$/.test(demo) ? demo : zurichTodayString(now);
+}
+
+export function isDemoDate(): boolean {
+  return appDateString() !== zurichTodayString();
 }
 
 /** UTC-midnight Date for a "YYYY-MM-DD" string (what Prisma @db.Date expects) */
@@ -37,7 +50,11 @@ export function zurichToday(now?: Date): Date {
   return dateOnly(zurichTodayString(now));
 }
 
-/** minutes after midnight, Zurich local time */
+export function appDate(now?: Date): Date {
+  return dateOnly(appDateString(now));
+}
+
+/** minutes after midnight, Zurich local time (real clock) */
 export function zurichNowMinutes(now?: Date): number {
   const { h, min } = zurichParts(now);
   return h * 60 + min;

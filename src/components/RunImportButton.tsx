@@ -11,7 +11,7 @@ export function RunImportButton() {
       <button className="btn-secondary" disabled={pending} onClick={() => start(async () => setResult(await runImportAction()))}>
         {pending ? "Importing…" : "Run menu import now"}
       </button>
-      {result ? <pre className="max-h-64 overflow-auto rounded bg-stone-100 p-2 text-xs">{result}</pre> : null}
+      {result ? <pre className="max-h-64 overflow-auto rounded-lg bg-stone-100 p-2 text-[11px]">{result}</pre> : null}
     </div>
   );
 }

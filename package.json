@@ -16,17 +16,18 @@
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset --force",
     "bootstrap": "bash scripts/setup.sh",
-    "import:menus": "tsx --env-file=.env scripts/import.ts"
+    "import:menus": "tsx --env-file=.env scripts/import.ts",
+    "e2e": "node scripts/e2e.mjs"
   },
   "dependencies": {
     "@prisma/client": "6",
     "bcryptjs": "^3.0.3",
+    "lucide-react": "^1.55.0",
     "next": "15.5.27",
     "next-auth": "5.0.0-beta.32",
     "prisma": "6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-swipeable": "^7.0.2",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.27",
+    "playwright": "^1.64.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",

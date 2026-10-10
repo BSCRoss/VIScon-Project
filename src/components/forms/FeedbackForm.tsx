@@ -43,7 +43,7 @@ export function FeedbackForm({ mensas, likedDishes, defaultMensaId, planSlot, ex
         <legend className="label">Rate your dish</legend>
         <div className="grid grid-cols-5 gap-2">
           {[1, 2, 3, 4, 5].map((n) => (
-            <label key={n} className="tile"><input type="radio" name="rating" value={n} required defaultChecked={existing?.rating === n} className="peer sr-only" /><span className="tile-inner text-lg">{"★".repeat(n)}</span></label>
+            <label key={n} className="tile"><input type="radio" name="rating" value={n} required defaultChecked={existing?.rating === n} className="peer sr-only" /><span className="tile-inner text-[13px]">{n}★</span></label>
           ))}
         </div>
       </fieldset>

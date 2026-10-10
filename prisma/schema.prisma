@@ -20,6 +20,12 @@ enum Campus {
   OTHER
 }
 
+/// Where a user is on a given weekday. ZENTRUM = ETH main building (HG) + UZH Zentrum.
+enum Area {
+  ZENTRUM
+  HOENGGERBERG
+}
+
 enum MenuSource {
   ETH_COOKPIT
   FOOD2050
@@ -63,6 +69,8 @@ model User {
 
   mensas      UserMensa[]
   allergens   UserAllergen[]
+  weekdays    UserWeekday[]
+  decisions   GroupDecision[] @relation("DecisionCommitter")
   memberships GroupMember[]
   groupsOwned Group[]        @relation("GroupOwner")
   invitesSent GroupInvite[]  @relation("InviteFrom")
@@ -85,10 +93,11 @@ model Mensa {
   /// hide closed/unused mensas from pickers
   isActive     Boolean    @default(true)
 
-  dishes   Dish[]
-  users    UserMensa[]
-  plans    Plan[]
-  feedback Feedback[]
+  dishes    Dish[]
+  users     UserMensa[]
+  plans     Plan[]
+  feedback  Feedback[]
+  decisions GroupDecision[]
 
   @@unique([source, sourceId])
 }
@@ -158,6 +167,16 @@ model UserAllergen {
   @@id([userId, allergenId])
 }
 
+/// Which campus area the user is on each weekday (1 = Monday … 5 = Friday). Missing = not on campus.
+model UserWeekday {
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekday Int
+  area    Area
+
+  @@id([userId, weekday])
+}
+
 model UserMensa {
   userId  String
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -174,9 +193,28 @@ model Group {
   owner     User     @relation("GroupOwner", fields: [ownerId], references: [id])
   createdAt DateTime @default(now())
 
-  members GroupMember[]
-  invites GroupInvite[]
-  plans   Plan[]
+  members   GroupMember[]
+  invites   GroupInvite[]
+  plans     Plan[]
+  decisions GroupDecision[]
+}
+
+/// The committed outcome for a group on a day: "we eat at <mensa> at <slot>". One per group per day.
+model GroupDecision {
+  id            String   @id @default(cuid())
+  groupId       String
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  date          DateTime @db.Date
+  mensaId       String
+  mensa         Mensa    @relation(fields: [mensaId], references: [id])
+  /// minutes after midnight, 660..840 step 15
+  slotMinutes   Int
+  committedById String
+  committedBy   User     @relation("DecisionCommitter", fields: [committedById], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([groupId, date])
 }
 
 model GroupMember {
@@ -219,7 +257,7 @@ model Swipe {
   @@unique([userId, dishId])
 }
 
-/// the user's intention for one day: one lunch per day
+/// the user's availability + group for one day: one lunch per day
 model Plan {
   id          String   @id @default(cuid())
   userId      String
@@ -227,8 +265,9 @@ model Plan {
   date        DateTime @db.Date
   groupId     String?
   group       Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  /// minutes after midnight, 660..840 in steps of 15 (11:00–14:00)
-  slotMinutes Int?
+  /// availability window (inclusive slot bounds), minutes after midnight, 660..840 step 15
+  fromMinutes Int?
+  toMinutes   Int?
   mensaId     String?
   mensa       Mensa?   @relation(fields: [mensaId], references: [id], onDelete: SetNull)
   updatedAt   DateTime @updatedAt

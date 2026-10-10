@@ -22,6 +22,7 @@ Routes: `/register`, `/login`.
 Route: `/onboarding` (also reachable later from Settings).
 
 - Step 1 **Pick your mensas**: list grouped by campus (ETH Zentrum, ETH Hönggerberg, UZH Zentrum, UZH Irchel, Other). Multi-select tiles. Pre-select Mensa Polyterrasse and UZH Zentrum Lower Mensa to shorten the demo.
+- Step 0 **Where are you each day?** Mon–Fri segmented control: HG / Höngg / Off (decision 8). The mensa list below only shows mensas in the chosen areas.
 - Step 2 **Preferences**: toggles Vegetarian, Vegan; multi-select of the 14 allergens to flag.
 - Save → `/today`.
 - Accept: at least one mensa required; selection persists on reload.
@@ -32,7 +33,8 @@ Route: `/today`.
 
 - Header: date ("Friday, 10 Oct"), the user's current plan summary chip ("Group: Lab · 12:15" or "Set your plan"), tapping it opens `/plan`.
 - Filter row: "All / Vegetarian / Vegan" soft filter, default from user preferences.
-- List of today's lunch dishes grouped by mensa, each a compact `DishCard`. Dishes the user already swiped show a small indicator (👍/👍👍/👎/👎👎).
+- Agreed-decision banner(s) when a group has committed.
+- List of today's lunch dishes grouped by mensa (only mensas in today's area), each mensa heading with a load traffic light (decision 11), each dish a compact `DishCard`. Dishes the user already swiped show a small indicator (👍/👍👍/👎/👎👎).
 - Primary button at the bottom: "Swipe through today's menu" → `/swipe` (hidden when every dish is already swiped).
 - Accept: loads in < 1 s with ~40 dishes; works for a user with 3 mensas; shows the empty state if the import has not run.
 
@@ -46,12 +48,12 @@ Route: `/swipe`. Client component `SwipeDeck`.
 - After the last card: summary screen "You liked N dishes at: Polyterrasse (3), Untere Mensa (1)" with buttons "Set time & group" (`/plan`) and "See what your group chose" (`/groups/<last used>`).
 - Accept: each swipe persists via the `swipe` action without blocking the animation (optimistic); refreshing the page does not show already swiped dishes; `undo` works for the last card.
 
-## 5. Plan (group + time slot)
+## 5. Plan (availability grid) – replaces the slot picker (decision 9)
 
 Route: `/plan`.
 
 - Group picker: the user's groups as radio tiles (plus "Create a group" link). If the user has none → prompt to create one.
-- Slot picker (`SlotPicker`): horizontal scroll of 15-minute chips 11:00 … 14:00. Highlight the current selection. Optionally show how many group members picked each slot (small number under the chip).
+- Availability grid (`AvailabilityGrid`): rows of 15 minutes from 11:00 to 14:00. Press a row and slide to mark your window; it saves on release. The right column shows how many members of the selected group are free in that row, with "all free" markers and the agreed slot once committed.
 - Optional: "Mensa I'm going to" dropdown limited to mensas where the user has a right swipe today; leave empty by default.
 - Save → `/groups/[groupId]`.
 - Accept: `Plan` row upserted for today; slot stored as minutes; can be changed any number of times.
@@ -72,7 +74,7 @@ Routes: `/groups`, `/groups/new`, `/groups/[groupId]`.
   - Members who have done nothing yet are listed as "no plan yet".
 - **Per-member list**: name, slot chip, chosen mensa (if set), their right-swiped dishes as small chips (👍👍 first).
 - Your own row has an "Edit my plan" link → `/plan`.
-- Convergence is manual: there is no "decide" button. The summary just makes agreement obvious.
+- **Consensus + Commit** (decision 10): once every member has a window and some row is free for all, a Commit form appears (mensa + time preselected from the ranking). After committing, the group page shows the agreed card with a "Change decision" link, and Today shows the banner.
 - Accept: updates when the page is reloaded (no realtime needed; add a 30 s `router.refresh()` interval if cheap); a member of another group cannot open this page (404).
 
 ## 7. Feedback

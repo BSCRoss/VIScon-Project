@@ -29,6 +29,8 @@ pnpm import:menus          # or: pnpm import:menus eth 2026-10-12
 ```
 The same import runs on a schedule in production via `/api/import` (see `vercel.json`), and from the **Me** screen in development.
 
+Demo date: `.env` contains `DEMO_DATE=2026-10-09` so the app shows Friday's real menus regardless of the real date. Remove the line for live use. Restart `pnpm dev` after changing it.
+
 Checks before pushing: `pnpm typecheck && pnpm lint && pnpm test`.
 
 Phone on the same Wi-Fi: add `AUTH_URL=http://<your-LAN-IP>:3001` to `.env`, restart `pnpm dev`, open that URL on the phone.
