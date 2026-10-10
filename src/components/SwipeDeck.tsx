@@ -11,11 +11,13 @@ type Done = { dish: DishDTO; value: number };
 
 /** Right = "I want to eat this today". Long swipes (>200px) count double. Persists optimistically. */
 export function SwipeDeck({ dishes, flaggedAllergenIds, lastGroupId }: { dishes: DishDTO[]; flaggedAllergenIds: number[]; lastGroupId?: string | null }) {
+  // Freeze the initial unswiped list so server re-renders (after server actions) don't shift the deck and skip items
+  const [list] = useState(() => dishes.filter((d) => d.mySwipe === null));
   const [index, setIndex] = useState(0);
   const [done, setDone] = useState<Done[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
-  const current = dishes[index];
+  const current = list[index];
 
   function commit(value: number) {
     if (!current) return;
@@ -66,7 +68,7 @@ export function SwipeDeck({ dishes, flaggedAllergenIds, lastGroupId }: { dishes:
 
   return (
     <div className="space-y-4">
-      <p className="text-center text-xs text-stone-500">Swipe right = I want to eat this today · {dishes.length - index} left</p>
+      <p className="text-center text-xs text-stone-500">Swipe right = I want to eat this today · {list.length - index} left</p>
       <div {...handlers} className="touch-pan-y select-none">
         <DishCard dish={current} flaggedAllergenIds={flaggedAllergenIds} />
       </div>
